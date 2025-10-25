@@ -1,3 +1,4 @@
+// Card class
 export default class Card {
   constructor(suit, rank, faceUp = false) {
     this.suit = suit; // 'Hearts', 'Diamonds', 'Clubs', 'Spades'
