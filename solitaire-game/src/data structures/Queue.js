@@ -1,0 +1,90 @@
+// Node class
+class Node {
+  constructor(data, next = null) {
+    this.data = data;
+    this.next = next;
+  }
+}
+
+// Queue class
+export default class Queue {
+  constructor() {
+    this.front = null;
+    this.rear = null;
+  }
+
+  // Check if the queue is empty
+  isEmpty() {
+    return this.front === null;
+  }
+
+  // Check if the queue is full (heap check)
+  isFull() {
+    try {
+      const test = new Node(0);
+      console.log(test);
+      return false;
+    } catch (e) {
+      console.log(e);
+      return true;
+    }
+  }
+
+  // Add element to the rear
+  enqueue(x) {
+    if (this.isFull()) {
+      console.log("Queue Overflow!");
+      return false;
+    }
+
+    const newNode = new Node(x);
+
+    if (this.isEmpty()) {
+      this.front = this.rear = newNode;
+    } else {
+      this.rear.next = newNode;
+      this.rear = newNode;
+    }
+    return true;
+  }
+
+  // Remove element from the front
+  dequeue() {
+    if (this.isEmpty()) {
+      console.log("Queue Underflow!");
+      return null;
+    }
+
+    const removedData = this.front.data;
+    if (this.front === this.rear) {
+      this.front = this.rear = null;
+    } else {
+      this.front = this.front.next;
+    }
+    return removedData;
+  }
+
+  // Peek at the front element
+  peek() {
+    if (this.isEmpty()) {
+      throw new Error("Queue is empty!");
+    }
+    return this.front.data;
+  }
+
+  // Display all elements
+  display() {
+    if (this.isEmpty()) {
+      console.log("Queue is empty!");
+      return;
+    }
+
+    let result = "Queue elements: ";
+    let current = this.front;
+    while (current) {
+      result += current.data + " ";
+      current = current.next;
+    }
+    console.log(result);
+  }
+}
