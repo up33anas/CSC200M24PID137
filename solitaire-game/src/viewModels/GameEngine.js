@@ -1,7 +1,7 @@
-import Deck from "../models/domain/Deck";
-import Tableau from "../models/domain/Tableau";
-import Foundation from "../models/domain/Foundation";
-import Stock from "../models/domain/Stock";
+import Deck from "../models/domain/Deck.js";
+import Tableau from "../models/domain/Tableau.js";
+import Foundation from "../models/domain/Foundation.js";
+import Stock from "../models/domain/Stock.js";
 import {
   findFoundationIndex,
   isValidSequence,
@@ -10,21 +10,27 @@ import {
 
 export default class Game {
   constructor() {
+    // Initialize deck and shuffle
     this.deck = new Deck();
     this.deck.shuffle();
 
+    // Initialize tableau, foundation, and stock
     this.tableau = new Tableau();
     this.tableau.deal(this.deck);
 
+    // Initialize foundation and stock
     this.foundation = new Foundation();
     this.stock = new Stock(this.deck);
 
+    // Move history for undo functionality
     this.moveHistory = [];
   }
 
+  // Move card from tableau to foundation
   moveTableauToFoundation(colIndex) {
     const movingCard = this.tableau.columns[colIndex].peek();
 
+    // Find appropriate foundation pile
     const destFoundationIndex = findFoundationIndex(
       movingCard,
       this.foundation
@@ -34,6 +40,7 @@ export default class Game {
       return false;
     }
 
+    // Execute move
     const card = this.tableau.columns[colIndex].pop();
     this.foundation.piles[destFoundationIndex].push(card);
 
@@ -45,19 +52,23 @@ export default class Game {
     return true;
   }
 
+  // Move cards between tableau columns
   moveTableauToTableau(fromCol, toCol, numCards) {
     const movingNodes = this.tableau.columns[fromCol].getTopNodes(numCards);
     const movingCards = movingNodes.map((n) => n.data);
 
+    // Get destination top card
     const destTopNodes = this.tableau.columns[toCol].getTopNodes(1);
     const destTopCard = destTopNodes.length ? destTopNodes[0].data : null;
 
+    // Check if the move is valid
     if (
       !isValidSequence(movingCards) ||
       !canPlaceOnDestination(movingCards[0], destTopCard)
     )
       return false;
 
+    // Execute move
     this.tableau.columns[fromCol].deleteTopNodes(numCards);
     this.tableau.columns[toCol].insertNodesAtTop(movingNodes);
 
@@ -68,6 +79,7 @@ export default class Game {
   // Draw from stock
   drawFromStock() {
     // move card(s) to waste
+    
   }
 
   // Undo last move

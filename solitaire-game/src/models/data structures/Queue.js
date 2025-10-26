@@ -18,25 +18,8 @@ export default class Queue {
     return this.front === null;
   }
 
-  // Check if the queue is full (heap check)
-  isFull() {
-    try {
-      const test = new Node(0);
-      console.log(test);
-      return false;
-    } catch (e) {
-      console.log(e);
-      return true;
-    }
-  }
-
   // Add element to the rear
   enqueue(x) {
-    if (this.isFull()) {
-      console.log("Queue Overflow!");
-      return false;
-    }
-
     const newNode = new Node(x);
 
     if (this.isEmpty()) {

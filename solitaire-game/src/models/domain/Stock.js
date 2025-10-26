@@ -1,4 +1,4 @@
-import Queue from "../data structures/Queue";
+import Queue from "../data structures/Queue.js";
 
 export default class Stock {
   constructor(deck) {
@@ -6,7 +6,7 @@ export default class Stock {
     this.wastePile = new Queue();
 
     while (deck.cards.length > 0) {
-      this.stockPile.enqueue(deck.dealCard());
+      this.stockPile.enqueue(deck.dealOneCard());
     }
   }
 

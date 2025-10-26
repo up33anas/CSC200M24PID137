@@ -1,4 +1,4 @@
-import Card from "./Card";
+import Card from "./Card.js";
 
 // Deck class to manage a collection of cards
 export default class Deck {
@@ -10,7 +10,12 @@ export default class Deck {
 
   // Create a standard 52-card deck
   initializeDeck() {
-    const suits = ["Hearts", "Diamonds", "Clubs", "Spades"];
+    const suits = [
+      { name: "Hearts", symbol: "\u2665", color: "Red" },
+      { name: "Diamonds", symbol: "\u2666", color: "Red" },
+      { name: "Clubs", symbol: "\u2663", color: "Black" },
+      { name: "Spades", symbol: "\u2660", color: "Black" },
+    ];
     const ranks = [
       "A",
       "2",
@@ -31,7 +36,7 @@ export default class Deck {
     for (const suit of suits) {
       for (const rank of ranks) {
         this.cards.push(new Card(suit, rank));
-        console.log(`Created card: ${rank} of ${suit}`);
+        console.log(`Created card: ${rank} of ${suit.symbol} ${suit.color}`);
         console.log(this.cards[this.cards.length - 1]);
       }
     }

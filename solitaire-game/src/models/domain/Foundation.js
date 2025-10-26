@@ -1,5 +1,4 @@
 import Stack from "../data structures/Stack.js";
-import Card from "./Card";
 
 // Foundation class to manage the four foundation piles
 export default class Foundation {

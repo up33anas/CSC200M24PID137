@@ -17,21 +17,7 @@ export default class Stack {
     return this.top === null;
   }
 
-  isFull() {
-    try {
-      const test = new Node(0);
-      console.log(test);
-      return false;
-    } catch (e) {
-      console.log(e);
-      return true;
-    }
-  }
-
   push(x) {
-    if (this.isFull()) {
-      throw new Error("Stack Overflow!");
-    }
     const newNode = new Node(x, this.top);
     this.top = newNode;
     this.count++;

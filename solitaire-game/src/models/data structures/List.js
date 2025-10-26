@@ -119,13 +119,25 @@ export default class List {
   }
 
   getTopNodes(n) {
+    // Return empty array if list is empty
+    if (this.isEmpty()) return [];
+
     let nodes = [];
     let temp = this.head;
-    let count = 0;
+    let stack = [];
 
-    while (temp && count < n && temp.data.faceUp) {
-      nodes.push(temp);
+    // Traverse entire list
+    while (temp) {
+      stack.push(temp);
       temp = temp.next;
+    }
+
+    // Pop from end to get top cards
+    let count = 0;
+    while (stack.length > 0 && count < n) {
+      let node = stack.pop();
+      if (!node.data.faceUp) break;
+      nodes.unshift(node);
       count++;
     }
 
@@ -133,19 +145,54 @@ export default class List {
   }
 
   deleteTopNodes(n) {
+    if (this.isEmpty()) return;
+
+    // Count total nodes
+    let size = 0;
     let temp = this.head;
-    while (temp && n > 0) {
+    while (temp) {
+      size++;
       temp = temp.next;
-      n--;
     }
-    this.head = temp;
+
+    // If deleting entire list
+    if (n >= size) {
+      this.head = null;
+      return;
+    }
+
+    // Traverse to the (size - n - 1)th node
+    let prev = this.head;
+    for (let i = 1; i < size - n; i++) {
+      prev = prev.next;
+    }
+
+    // Cut the link to delete top n nodes
+    prev.next = null;
   }
 
   insertNodesAtTop(nodes) {
     if (nodes.length === 0) return;
 
-    for (let i = nodes.length - 1; i >= 0; i--) {
-      this.insertAtHead(nodes[i].data);
+    // Find current tail
+    let tail = this.head;
+    if (!tail) {
+      // If empty, just rebuild the list
+      this.head = nodes[0];
+      let curr = this.head;
+      for (let i = 1; i < nodes.length; i++) {
+        curr.next = nodes[i];
+        curr = curr.next;
+      }
+      return;
+    }
+
+    while (tail.next) tail = tail.next;
+
+    // Attach new nodes at the end
+    for (let i = 0; i < nodes.length; i++) {
+      tail.next = new Node(nodes[i].data);
+      tail = tail.next;
     }
   }
 }

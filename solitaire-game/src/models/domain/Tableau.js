@@ -9,7 +9,7 @@ export default class Tableau {
   deal(deck) {
     for (let col = 0; col < 7; col++) {
       for (let i = 0; i <= col; i++) {
-        const card = deck.draw();
+        const card = deck.dealOneCard();
         if (i == col) card.faceUp = true;
         this.columns[col].insertAtEnd(card);
       }
