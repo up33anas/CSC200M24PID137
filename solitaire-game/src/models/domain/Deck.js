@@ -1,4 +1,4 @@
-import Card from "./Card.js";
+import Card from "./Card";
 
 // Deck class to manage a collection of cards
 export default class Deck {

@@ -117,4 +117,35 @@ export default class List {
     }
     return count;
   }
+
+  getTopNodes(n) {
+    let nodes = [];
+    let temp = this.head;
+    let count = 0;
+
+    while (temp && count < n && temp.data.faceUp) {
+      nodes.push(temp);
+      temp = temp.next;
+      count++;
+    }
+
+    return nodes;
+  }
+
+  deleteTopNodes(n) {
+    let temp = this.head;
+    while (temp && n > 0) {
+      temp = temp.next;
+      n--;
+    }
+    this.head = temp;
+  }
+
+  insertNodesAtTop(nodes) {
+    if (nodes.length === 0) return;
+
+    for (let i = nodes.length - 1; i >= 0; i--) {
+      this.insertAtHead(nodes[i].data);
+    }
+  }
 }

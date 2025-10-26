@@ -1,4 +1,4 @@
-import List from "./data structures/List.js";
+import List from "../data structures/List.js";
 
 // Tableau class to manage the seven tableau piles
 export default class Tableau {
