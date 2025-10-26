@@ -3,10 +3,11 @@ import Tableau from "../models/domain/Tableau.js";
 import Foundation from "../models/domain/Foundation.js";
 import Stock from "../models/domain/Stock.js";
 import {
-  findFoundationIndex,
-  isValidSequence,
-  canPlaceOnDestination,
-} from "../utils/gameRules.js";
+  moveTableauToTableau,
+  moveTableauToFoundation,
+  moveWasteToTableau,
+  moveWasteToFoundation,
+} from "../utils/moveHelpers.js";
 
 export default class Game {
   constructor() {
@@ -28,58 +29,43 @@ export default class Game {
 
   // Move card from tableau to foundation
   moveTableauToFoundation(colIndex) {
-    const movingCard = this.tableau.columns[colIndex].peek();
-
-    // Find appropriate foundation pile
-    const destFoundationIndex = findFoundationIndex(
-      movingCard,
-      this.foundation
-    );
-    if (destFoundationIndex === -1) {
-      console.log("Invalid move to foundation");
-      return false;
-    }
-
-    // Execute move
-    const card = this.tableau.columns[colIndex].pop();
-    this.foundation.piles[destFoundationIndex].push(card);
-
-    this.moveHistory.push({
-      fromCol: colIndex,
-      toFoundation: destFoundationIndex,
-      card,
-    });
-    return true;
+    const from = this.tableau.columns[colIndex];
+    const result = moveTableauToFoundation(from, this.foundation);
+    if (result.success) this.moveHistory.push(result);
+    return result.success;
   }
 
   // Move cards between tableau columns
   moveTableauToTableau(fromCol, toCol, numCards) {
-    const movingNodes = this.tableau.columns[fromCol].getTopNodes(numCards);
-    const movingCards = movingNodes.map((n) => n.data);
+    const from = this.tableau.columns[fromCol];
+    const to = this.tableau.columns[toCol];
 
-    // Get destination top card
-    const destTopNodes = this.tableau.columns[toCol].getTopNodes(1);
-    const destTopCard = destTopNodes.length ? destTopNodes[0].data : null;
+    const result = moveTableauToTableau(from, to, numCards);
+    if (result.success) this.moveHistory.push(result);
+    return result.success;
+  }
 
-    // Check if the move is valid
-    if (
-      !isValidSequence(movingCards) ||
-      !canPlaceOnDestination(movingCards[0], destTopCard)
-    )
-      return false;
+  // Move card from waste to tableau
+  moveWasteToTableau(colIndex) {
+    const result = moveWasteToTableau(
+      this.stock.wastePile,
+      this.tableau,
+      colIndex
+    );
+    if (result.success) this.moveHistory.push(result);
+    return result.success;
+  }
 
-    // Execute move
-    this.tableau.columns[fromCol].deleteTopNodes(numCards);
-    this.tableau.columns[toCol].insertNodesAtTop(movingNodes);
-
-    this.moveHistory.push({ fromCol, toCol, cards: movingCards });
-    return true;
+  // Move card from waste to foundation
+  moveWasteToFoundation() {
+    const result = moveWasteToFoundation(this.stock.wastePile, this.foundation);
+    if (result.success) this.moveHistory.push(result);
+    return result.success;
   }
 
   // Draw from stock
   drawFromStock() {
     // move card(s) to waste
-    
   }
 
   // Undo last move
