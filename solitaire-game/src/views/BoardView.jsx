@@ -14,7 +14,7 @@ export default function BoardView({ viewModel }) {
         {/* Left side: Stock + Waste */}
         <div className="flex gap-6">
           <StockView stock={state.stock} viewModel={viewModel} />
-          <WasteView waste={state.waste} />
+          <WasteView waste={state.waste} viewModel={viewModel} />
         </div>
 
         {/* Right side: Foundations */}

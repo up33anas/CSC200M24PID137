@@ -9,10 +9,15 @@ export default class GameViewModel {
     this.updateState();
   }
 
+  /** Get latest state */
+  getState() {
+    return this.controller.getState();
+  }
+
   /** Helper to sync backend state to frontend */
   updateState() {
-    const snapshot = this.controller.getState();
-    this.setState(snapshot);
+    // const snapshot = this.controller.getState();
+    this.setState({ ...this.controller.getState() }); // creates new top-level object
   }
 
   /** Start a completely new game */
@@ -66,10 +71,5 @@ export default class GameViewModel {
   /** Victory check */
   checkVictory() {
     return this.controller.checkVictory();
-  }
-
-  /** Get latest state (if needed manually) */
-  getState() {
-    return this.controller.getState();
   }
 }

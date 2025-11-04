@@ -1,6 +1,8 @@
 import React from "react";
 
 export default function FoundationView({ foundation }) {
+  const symbols = ["♥", "♦", "♣", "♠"];
+
   return (
     <div className="flex gap-6">
       {foundation.piles.map((pile, index) => {
@@ -13,7 +15,7 @@ export default function FoundationView({ foundation }) {
             {topCard ? (
               <span className="text-xl">{`${topCard.rank}${topCard.suit.symbol}`}</span>
             ) : (
-              <span className="opacity-50">A</span>
+              <span className="opacity-50 text-5xl">{symbols[index]}</span>
             )}
           </div>
         );

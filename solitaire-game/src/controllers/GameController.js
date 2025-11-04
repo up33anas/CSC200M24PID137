@@ -43,13 +43,22 @@ export default class GameController {
     console.log("New game started.");
   }
 
+  // Get the current waste cards (top 3 or fewer)
+  getWasteCards() {
+    return this.stock.drawThree(); // returns an array of 1–3 cards
+  }
+
+  selectCard(card) {
+    this.selectCard = card;
+  }
+
   // Return a snapshot of the current game state
   getState() {
     return {
       tableau: this.tableau,
       foundation: this.foundation,
       stock: this.stock,
-      waste: this.stock.wastePile,
+      waste: this.stock.getWasteCards(),
       deck: this.deck,
     };
   }
