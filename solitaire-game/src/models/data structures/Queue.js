@@ -55,7 +55,18 @@ export default class Queue {
     return this.front.data;
   }
 
-  // Display all elements
+  // Convert the queue to a plain array (for frontend rendering)
+  toArray() {
+    const arr = [];
+    let current = this.front;
+    while (current) {
+      arr.push(current.data);
+      current = current.next;
+    }
+    return arr;
+  }
+
+  // Display all elements (optional)
   display() {
     if (this.isEmpty()) {
       console.log("Queue is empty!");

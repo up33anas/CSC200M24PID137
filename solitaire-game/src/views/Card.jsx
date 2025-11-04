@@ -1,7 +1,7 @@
 import React from "react";
 import * as deck from "@letele/playing-cards";
 
-export default function CardUI({ card, style }) {
+export default function CardUI({ card }) {
   if (!card) return null;
 
   const suitLetter = card.suit[0].toUpperCase(); // hearts → H, spades → S
@@ -12,7 +12,7 @@ export default function CardUI({ card, style }) {
   const Back = deck["B1"]; // or "B2" for different back
 
   return (
-    <div style={{ width: "100px", height: "160px", ...style }}>
+    <div className="w-30 h-45">
       {card.faceUp ? (
         <CardComponent style={{ width: "100%", height: "100%" }} />
       ) : (

@@ -1,49 +1,50 @@
 import Queue from "../data structures/Queue.js";
 
+// Stock class to manage the stock and waste piles
 export default class Stock {
   constructor(deck) {
     this.stockPile = new Queue();
     this.wastePile = new Queue();
-    this.lastThreeCards = [];
 
     while (deck.cards.length > 0) {
       this.stockPile.enqueue(deck.dealOneCard());
     }
   }
 
-  // Draw three cards from stock to waste
+  /** Returns the stock pile as an array for the UI */
+  getStockCards() {
+    return this.stockPile.toArray(); // <-- implement `toArray` in Queue
+  }
+
+  /** Returns the waste pile as an array for UI */
+  getWasteCards() {
+    return this.wastePile.toArray();
+  }
+
   drawThree() {
-    this.lastThreeCards = [];
+    const drawn = [];
     for (let i = 0; i < 3; i++) {
       const card = this.stockPile.dequeue();
       if (!card) break;
       card.faceUp = true;
       this.wastePile.enqueue(card);
-      this.lastThreeCards.push(card);
+      drawn.push(card);
     }
-    return this.lastThreeCards;
+    return drawn;
   }
 
-  // Get the last three drawn cards
-  getLastThreeCards() {
-    return [...this.lastThreeCards]; // returns a copy to prevent accidental mutation
-  }
-
-  // Reset stock from waste pile if stock is empty
   resetFromWaste() {
     if (!this.wastePile.isEmpty() && this.stockPile.isEmpty()) {
-      const tempCards = [];
+      const cards = [];
       while (!this.wastePile.isEmpty()) {
-        const card = this.wastePile.dequeue();
-        card.faceUp = false;
-        tempCards.push(card);
+        const c = this.wastePile.dequeue();
+        c.faceUp = false;
+        cards.push(c);
       }
-      // Refill stock pile
-      tempCards.reverse().forEach((card) => this.stockPile.enqueue(card));
+      cards.reverse().forEach((c) => this.stockPile.enqueue(c));
     }
   }
 
-  // Check if stock is empty
   isEmpty() {
     return this.stockPile.isEmpty();
   }

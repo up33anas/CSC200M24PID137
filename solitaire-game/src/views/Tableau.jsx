@@ -3,14 +3,11 @@ import CardUI from "./Card.jsx";
 
 export default function TableauUI({ tableau }) {
   return (
-    <div className="flex gap-5 px-5 py-6 justify-center">
+    <div className="flex gap-5 px-7 py-2 justify-center">
       {tableau.columns.map((list, colIndex) => {
         const pile = list.toArray(); // convert linked list into an array
         return (
-          <div
-            key={colIndex}
-            className="relative min-h-[400px] w-[90px] bg-emerald-900/40 border border-emerald-700 rounded-xl shadow-inner"
-          >
+          <div key={colIndex} className="relative min-h-[300px] w-[120px] ">
             {pile.map((card, i) => (
               <div
                 key={i}
