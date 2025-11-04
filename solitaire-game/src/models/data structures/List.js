@@ -195,4 +195,14 @@ export default class List {
       tail = tail.next;
     }
   }
+
+  toArray() {
+    const arr = [];
+    let current = this.head;
+    while (current) {
+      arr.push(current.data);
+      current = current.next;
+    }
+    return arr;
+  }
 }
