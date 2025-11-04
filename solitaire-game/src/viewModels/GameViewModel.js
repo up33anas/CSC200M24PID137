@@ -27,6 +27,33 @@ export default class GameController {
     this.redoStack = new Stack(); // Redo stack
   }
 
+  startNewGame() {
+    this.deck = new Deck();
+    this.deck.shuffle();
+
+    this.tableau = new Tableau();
+    this.tableau.deal(this.deck);
+
+    this.foundation = new Foundation();
+    this.stock = new Stock(this.deck);
+
+    this.moveHistory = new Stack();
+    this.redoStack = new Stack();
+
+    console.log("New game started.");
+  }
+
+  // Return a snapshot of the current game state
+  getState() {
+    return {
+      tableau: this.tableau,
+      foundation: this.foundation,
+      stock: this.stock,
+      waste: this.stock.wastePile, // assuming waste pile is inside Stock
+      deck: this.deck,
+    };
+  }
+
   /* ----------------- MOVE ACTIONS ----------------- */
 
   moveTableauToFoundation(colIndex) {

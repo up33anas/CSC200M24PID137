@@ -12,7 +12,7 @@ export default function CardUI({ card, style }) {
   const Back = deck["B1"]; // or "B2" for different back
 
   return (
-    <div style={{ width: "80px", height: "112px", ...style }}>
+    <div style={{ width: "100px", height: "160px", ...style }}>
       {card.faceUp ? (
         <CardComponent style={{ width: "100%", height: "100%" }} />
       ) : (
