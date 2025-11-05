@@ -1,68 +1,54 @@
-import React, { useEffect, useState } from "react";
-import { Undo2, Redo2, RefreshCcw } from "lucide-react";
+import React from "react";
+import { Undo2, Redo2, Sparkles } from "lucide-react";
 
-export default function Header({
-  onUndo,
-  onRedo,
-  onNewGame,
-  moves = 0,
-  score = 0,
-  startTime,
-}) {
-  const [elapsedTime, setElapsedTime] = useState(0);
-
-  // Timer effect
-  useEffect(() => {
-    if (!startTime) return;
-    const interval = setInterval(() => {
-      setElapsedTime(Math.floor((Date.now() - startTime) / 1000)); // seconds
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [startTime]);
-
-  // Format seconds to mm:ss
-  const formatTime = (seconds) => {
-    const m = String(Math.floor(seconds / 60)).padStart(2, "0");
-    const s = String(seconds % 60).padStart(2, "0");
-    return `${m}:${s}`;
-  };
-
+export default function Header({ onUndo, onRedo, onHint }) {
   return (
-    <header className="border-b-gray-900 flex items-center justify-between bg-gray-900 text-amber-50 px-6 py-3 shadow-lg w-full">
-      {/* Left: Game Title */}
-      <h1 className="text-3xl font-bold tracking-wide drop-shadow-sm">
+    <header
+      className="font-cinzel mx-auto mt-4 w-[90%] max-w-5xl bg-linear-to-r from-slate-800/70 via-teal-900/60 to-emerald-800/60 
+      text-amber-50 flex flex-row items-center justify-between gap-4 px-8 py-4 
+      shadow-2xl border border-teal-700/30 backdrop-blur-md rounded-2xl"
+    >
+      {/* Game Title */}
+      <h1 className="text-3xl font-bold tracking-wide drop-shadow-lg text-amber-100 select-none text-center">
         ♠ The Pseudo Solitaire
       </h1>
 
-      {/* Middle: Stats */}
-      <div className="flex gap-6 items-center font-semibold">
-        <div>Moves: {moves}</div>
-        <div>Score: {score}</div>
-        <div>Time: {formatTime(elapsedTime)}</div>
-      </div>
-
-      {/* Right: Control Buttons */}
-      <div className="flex gap-3">
-        <button
+      {/* Control Buttons */}
+      <div className="flex gap-4 items-center justify-center">
+        <HeaderButton
+          icon={<Undo2 size={18} />}
+          label="Undo"
           onClick={onUndo}
-          className="flex items-center gap-2 bg-gray-700 hover:bg-gray-800 px-4 py-2 rounded-xl font-semibold transition-all duration-200 shadow-md"
-        >
-          <Undo2 size={18} /> Undo
-        </button>
-        <button
+          color="from-slate-800/70 to-slate-700/70 hover:from-slate-700/80 hover:to-slate-600/80"
+        />
+        <HeaderButton
+          icon={<Redo2 size={18} />}
+          label="Redo"
           onClick={onRedo}
-          className="flex items-center gap-2 bg-gray-700 hover:bg-gray-800 px-4 py-2 rounded-xl font-semibold transition-all duration-200 shadow-md"
-        >
-          <Redo2 size={18} /> Redo
-        </button>
-        <button
-          onClick={onNewGame}
-          className="flex items-center gap-2 bg-teal-800 hover:bg-teal-900 px-4 py-2 rounded-xl font-semibold transition-all duration-200 shadow-md"
-        >
-          <RefreshCcw size={18} /> New Game
-        </button>
+          color="from-slate-800/70 to-slate-700/70 hover:from-slate-700/80 hover:to-slate-600/80"
+        />
+        <HeaderButton
+          icon={<Sparkles size={18} />}
+          label="Hint"
+          onClick={onHint}
+          color="from-amber-500/70 to-yellow-400/70 hover:from-amber-400/80 hover:to-yellow-300/80"
+        />
       </div>
     </header>
+  );
+}
+
+// Reusable Header Button Component
+function HeaderButton({ icon, label, onClick, color }) {
+  return (
+    <button
+      onClick={onClick}
+      className={`flex items-center justify-center gap-2 px-6 py-2.5 rounded-full font-poppins text-base font-semibold text-white 
+      bg-linear-to-br ${color} shadow-lg shadow-black/30 backdrop-blur-sm
+      hover:shadow-amber-500/30 hover:scale-105 transition-all duration-300`}
+    >
+      {icon}
+      <span>{label}</span>
+    </button>
   );
 }

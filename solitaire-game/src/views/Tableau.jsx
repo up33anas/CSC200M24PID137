@@ -7,7 +7,7 @@ export default function TableauUI({ tableau }) {
       {tableau.columns.map((list, colIndex) => {
         const pile = list.toArray(); // convert linked list into an array
         return (
-          <div key={colIndex} className="relative min-h-[300px] w-[120px] ">
+          <div key={colIndex} className="relative min-h-[280px] w-[120px] ">
             {pile.map((card, i) => (
               <div
                 key={i}

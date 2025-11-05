@@ -10,7 +10,7 @@ export default function WasteView({ waste, viewModel }) {
   };
 
   return (
-    <div className="relative w-32 h-48">
+    <div className="relative w-30 h-45">
       {waste.length === 0 && (
         <div className="w-full h-full border-2 border-gray-400 rounded-lg bg-green-800/60 flex items-center justify-center">
           <span className="text-gray-300 text-3xl">🂠</span>

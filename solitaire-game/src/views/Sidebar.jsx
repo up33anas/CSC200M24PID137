@@ -1,45 +1,84 @@
 import React from "react";
+import { RefreshCcw, LogOut } from "lucide-react"; // icons
 
 export default function Sidebar({
   moves = 0,
   score = 0,
   progress = 70,
   time = 0,
+  onNewGame,
+  onLeave,
 }) {
   const minutes = Math.floor(time / 60);
   const seconds = time % 60;
 
   return (
-    <div className="bg-teal-900 text-white rounded-2xl p-6 shadow-xl flex flex-col gap-5 border border-teal-700">
-      <h2 className="text-2xl font-semibold text-center mb-1">YOUR STATS</h2>
+    <div className="bg-linear-to-b from-slate-900/80 via-teal-900/70 to-emerald-800/70 text-white rounded-2xl p-6 shadow-2xl flex flex-col justify-between border border-teal-700/40 backdrop-blur-md w-64">
+      {/* Stats Section */}
+      <div className="flex flex-col gap-5">
+        <h2 className="text-2xl font-cinzel text-center mb-2 tracking-wide text-amber-100">
+          YOUR STATS
+        </h2>
 
-      <div className="flex justify-between text-lg">
-        <span>🕒 Time:</span>
-        <span>
-          {minutes}:{seconds.toString().padStart(2, "0")}
-        </span>
-      </div>
-
-      <div className="flex justify-between text-lg">
-        <span>🔢 Moves:</span>
-        <span>{moves}</span>
-      </div>
-
-      <div className="flex justify-between text-lg">
-        <span>🏆 Score:</span>
-        <span>{score}</span>
-      </div>
-
-      <div>
-        <span className="block mb-1 text-lg">📈 Progress</span>
-        <div className="w-full bg-teal-700 h-3 rounded-full overflow-hidden">
-          <div
-            className="bg-green-400 h-full transition-all duration-500"
-            style={{ width: `${progress}%` }}
-          />
+        <div className="flex justify-between text-lg font-poppins">
+          <span>🕒 Time:</span>
+          <span>
+            {minutes}:{seconds.toString().padStart(2, "0")}
+          </span>
         </div>
-        <span className="text-right text-sm mt-1 block">{progress}%</span>
+
+        <div className="flex justify-between text-lg font-poppins">
+          <span>🔢 Moves:</span>
+          <span>{moves}</span>
+        </div>
+
+        <div className="flex justify-between text-lg font-poppins">
+          <span>🏆 Score:</span>
+          <span>{score}</span>
+        </div>
+
+        <div>
+          <span className="block mb-1 text-lg font-poppins">📈 Progress</span>
+          <div className="w-full bg-teal-700/60 h-3 rounded-full overflow-hidden">
+            <div
+              className="bg-linear-to-r from-emerald-400 to-teal-300 h-full transition-all duration-500"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+          <span className="text-right text-sm mt-1 block">{progress}%</span>
+        </div>
+      </div>
+
+      {/* Control Buttons */}
+      <div className="flex flex-col gap-3 mt-6">
+        <SidebarButton
+          icon={<RefreshCcw size={18} />}
+          label="New Game"
+          color="from-emerald-700 to-teal-600 hover:from-emerald-600 hover:to-teal-500"
+          onClick={onNewGame}
+        />
+        <SidebarButton
+          icon={<LogOut size={18} />}
+          label="Leave"
+          color="from-red-800 to-rose-700 hover:from-red-700 hover:to-rose-600"
+          onClick={onLeave}
+        />
       </div>
     </div>
+  );
+}
+
+// Reusable Sidebar Button Component
+function SidebarButton({ icon, label, color, onClick }) {
+  return (
+    <button
+      onClick={onClick}
+      className={`flex items-center justify-center gap-2 w-full px-4 py-3 rounded-xl font-semibold 
+      bg-linear-to-r ${color} text-white shadow-md hover:shadow-lg 
+      transition-all duration-200 hover:-translate-y-0.5 active:scale-95`}
+    >
+      {icon}
+      <span>{label}</span>
+    </button>
   );
 }
