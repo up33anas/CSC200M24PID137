@@ -19,7 +19,7 @@ function App() {
   return (
     <div>
       <Header />
-      <BoardView viewModel={viewModel} />{" "}
+      <BoardView viewModel={viewModel} />
     </div>
   );
 }

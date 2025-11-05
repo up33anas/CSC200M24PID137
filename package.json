@@ -12,6 +12,7 @@
   "dependencies": {
     "@letele/playing-cards": "^0.1.0",
     "@tailwindcss/vite": "^4.1.16",
+    "lucide-react": "^0.552.0",
     "react": "^19.2.0",
     "react-dnd": "^16.0.1",
     "react-dnd-html5-backend": "^16.0.1",

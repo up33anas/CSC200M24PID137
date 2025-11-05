@@ -22,14 +22,14 @@ export default function StockView({ stock, viewModel }) {
         stock.map((card, i) => (
           <div
             key={i}
-            className="absolute w-full h-full border-2 border-gray-400 rounded-lg bg-green-800/60"
+            className="absolute w-full h-full border-2 border-gray-400 rounded-lg bg-blue-900/60"
             style={{ top: i * 0.5 }}
           >
             <CardUI card={{ ...card, faceUp: false }} />
           </div>
         ))
       ) : (
-        <div className="text-3xl w-full h-full border-2 border-gray-400 rounded-lg bg-green-800/60 flex items-center justify-center">
+        <div className="text-3xl w-full h-full border-2 border-gray-400 rounded-lg bg-blue-900/60 flex items-center justify-center">
           ↩️
         </div>
       )}

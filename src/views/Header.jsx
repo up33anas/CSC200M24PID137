@@ -4,7 +4,7 @@ import { Undo2, Redo2, Sparkles } from "lucide-react";
 export default function Header({ onUndo, onRedo, onHint }) {
   return (
     <header
-      className="font-cinzel mx-auto mt-4 w-[90%] max-w-5xl bg-linear-to-r from-slate-800/70 via-teal-900/60 to-emerald-800/60 
+      className="font-cinzel mx-auto mt-4 w-[90%] max-w-5xl bg-linear-to-r from-slate-900/70 via-navy-900/60 to-blue-950/60 
       text-amber-50 flex flex-row items-center justify-between gap-4 px-8 py-4 
       shadow-2xl border border-teal-700/30 backdrop-blur-md rounded-2xl"
     >
@@ -19,13 +19,13 @@ export default function Header({ onUndo, onRedo, onHint }) {
           icon={<Undo2 size={18} />}
           label="Undo"
           onClick={onUndo}
-          color="from-slate-800/70 to-slate-700/70 hover:from-slate-700/80 hover:to-slate-600/80"
+          color="from-slate-700/70 to-slate-600/70 hover:from-slate-700/80 hover:to-slate-800/80"
         />
         <HeaderButton
           icon={<Redo2 size={18} />}
           label="Redo"
           onClick={onRedo}
-          color="from-slate-800/70 to-slate-700/70 hover:from-slate-700/80 hover:to-slate-600/80"
+          color="from-slate-700/70 to-slate-600/70 hover:from-slate-700/80 hover:to-slate-800/80"
         />
         <HeaderButton
           icon={<Sparkles size={18} />}

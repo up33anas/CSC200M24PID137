@@ -1,1 +1,1 @@
-# CSC200M24PID137
+# ♠ The Pseudo Solitaire

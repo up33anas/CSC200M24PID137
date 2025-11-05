@@ -13,7 +13,7 @@ export default function Sidebar({
   const seconds = time % 60;
 
   return (
-    <div className="bg-linear-to-b from-slate-900/80 via-teal-900/70 to-emerald-800/70 text-white rounded-2xl p-6 shadow-2xl flex flex-col justify-between border border-teal-700/40 backdrop-blur-md w-64">
+    <div className="bg-linear-to-b from-slate-950/80 via-navy-900/70 to-blue-950/70 text-white rounded-2xl p-6 shadow-2xl flex flex-col justify-between border border-teal-700/40 backdrop-blur-md w-64">
       {/* Stats Section */}
       <div className="flex flex-col gap-5">
         <h2 className="text-2xl font-cinzel text-center mb-2 tracking-wide text-amber-100">
@@ -21,31 +21,33 @@ export default function Sidebar({
         </h2>
 
         <div className="flex justify-between text-lg font-poppins">
-          <span>🕒 Time:</span>
+          <span>Time:</span>
           <span>
             {minutes}:{seconds.toString().padStart(2, "0")}
           </span>
         </div>
 
         <div className="flex justify-between text-lg font-poppins">
-          <span>🔢 Moves:</span>
+          <span>Moves:</span>
           <span>{moves}</span>
         </div>
 
         <div className="flex justify-between text-lg font-poppins">
-          <span>🏆 Score:</span>
+          <span>Score:</span>
           <span>{score}</span>
         </div>
 
         <div>
-          <span className="block mb-1 text-lg font-poppins">📈 Progress</span>
-          <div className="w-full bg-teal-700/60 h-3 rounded-full overflow-hidden">
+          <span className="block mb-1 text-lg font-poppins">Progress</span>
+          <div className="w-full bg-blue-950 h-3 rounded-full overflow-hidden">
             <div
-              className="bg-linear-to-r from-emerald-400 to-teal-300 h-full transition-all duration-500"
+              className="bg-gradient-to-r from-sky-400 via-blue-500 to-indigo-600 h-full transition-all duration-500"
               style={{ width: `${progress}%` }}
             />
           </div>
-          <span className="text-right text-sm mt-1 block">{progress}%</span>
+          <span className="text-right text-sm mt-1 block text-blue-300">
+            {progress}%
+          </span>
         </div>
       </div>
 
@@ -54,7 +56,7 @@ export default function Sidebar({
         <SidebarButton
           icon={<RefreshCcw size={18} />}
           label="New Game"
-          color="from-emerald-700 to-teal-600 hover:from-emerald-600 hover:to-teal-500"
+          color="from-emerald-800 to-blue-800 hover:from-emerald-600 hover:to-blue-600"
           onClick={onNewGame}
         />
         <SidebarButton
