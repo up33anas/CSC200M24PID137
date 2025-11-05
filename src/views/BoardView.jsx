@@ -12,6 +12,22 @@ export default function BoardView({ viewModel }) {
     viewModel.setState = setState;
   }, [viewModel]);
 
+  // Function to start a new game
+  const handleNewGame = () => {
+    if (window.confirm("Are you sure you want to start new game?")) {
+      viewModel.startNewGame();
+    }
+  };
+
+  // Function to leave the game
+  const handleLeave = () => {
+    console.log("Leaving game...");
+    // Example: navigate away or reload
+    if (window.confirm("Are you sure you want to leave the game?")) {
+      window.location.href = "google.com";
+    }
+  };
+
   return (
     <div
       className="
@@ -27,6 +43,8 @@ export default function BoardView({ viewModel }) {
           score={state.score}
           progress={state.progress}
           time={state.time}
+          onNewGame={handleNewGame}
+          onLeave={handleLeave}
         />
       </div>
 
@@ -41,7 +59,7 @@ export default function BoardView({ viewModel }) {
             />
             <WasteView waste={state.waste} viewModel={viewModel} />
           </div>
-          <FoundationView foundation={state.foundation} />
+          <FoundationView foundation={state.foundation} viewModel={viewModel} />
         </div>
 
         {/* Tableau Section */}

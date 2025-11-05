@@ -6,8 +6,6 @@ export default class Stock {
     this.stockPile = new Queue();
     this.wastePile = new Queue();
 
-    console.log("Initializing stock pile with deck cards...");
-    console.log(deck.cards.length);
     while (deck.cards.length > 0) {
       this.stockPile.enqueue(deck.dealOneCard());
     }
@@ -15,8 +13,6 @@ export default class Stock {
 
   /** Returns the stock pile as an array for the UI */
   getStockCards() {
-    console.log("Getting stock cards for UI...");
-    console.log("cards in stock", this.stockPile.toArray().length);
     return this.stockPile.toArray();
   }
 

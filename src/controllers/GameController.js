@@ -124,21 +124,51 @@ export default class GameController {
     return result.success;
   }
 
+  // moveWasteToFoundation() {
+  //   console.log("In GameController: Moving waste to foundation");
+  //   console.log(
+  //     this.stock.wastePile,
+  //     "waste------------------------foundation",
+  //     typeof this.stock.wastePile
+  //   );
+  //   const result = moveWasteToFoundation(this.stock.wastePile, this.foundation);
+
+  //   if (result.success) {
+  //     const move = {
+  //       type: "WASTE_TO_FOUNDATION",
+  //       cards: result.cards,
+  //       from: this.stock.wastePile,
+  //       to: result.to,
+  //       numCards: result.cards.length,
+  //     };
+  //     this.recordMove(move);
+  //   }
+
+  //   return result.success;
+  // }
+
   moveWasteToFoundation() {
+    console.log("In GameController: Moving waste to foundation");
+    console.log(
+      this.stock.wastePile,
+      "waste------------------------foundation"
+    );
+
     const result = moveWasteToFoundation(this.stock.wastePile, this.foundation);
 
-    if (result.success) {
+    if (result?.success) {
       const move = {
         type: "WASTE_TO_FOUNDATION",
-        cards: result.cards,
+        cards: result.movedCards,
         from: this.stock.wastePile,
         to: result.to,
-        numCards: result.cards.length,
+        numCards: result.movedCards.length,
       };
       this.recordMove(move);
+      console.log("Move successful:", move);
+    } else {
+      console.log("Move invalid or failed");
     }
-
-    return result.success;
   }
 
   drawFromStock() {

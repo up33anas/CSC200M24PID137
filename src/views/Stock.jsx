@@ -1,5 +1,6 @@
 import React from "react";
-import CardUI from "./Card";
+import CardUI from "./CardUI";
+// import { Undo } from "lucide-react";
 
 export default function StockView({ stock, viewModel }) {
   const handleClick = () => {
@@ -30,7 +31,7 @@ export default function StockView({ stock, viewModel }) {
         ))
       ) : (
         <div className="text-3xl w-full h-full border-2 border-gray-400 rounded-lg bg-blue-900/60 flex items-center justify-center">
-          ↩️
+          ↩
         </div>
       )}
     </div>

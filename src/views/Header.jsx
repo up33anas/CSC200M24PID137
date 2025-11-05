@@ -1,5 +1,6 @@
 import React from "react";
 import { Undo2, Redo2, Sparkles } from "lucide-react";
+import { Lightbulb, Info, HelpCircle } from "lucide-react";
 
 export default function Header({ onUndo, onRedo, onHint }) {
   return (
@@ -28,7 +29,7 @@ export default function Header({ onUndo, onRedo, onHint }) {
           color="from-slate-700/70 to-slate-600/70 hover:from-slate-700/80 hover:to-slate-800/80"
         />
         <HeaderButton
-          icon={<Sparkles size={18} />}
+          icon={<Lightbulb size={18} />}
           label="Hint"
           onClick={onHint}
           color="from-amber-500/70 to-yellow-400/70 hover:from-amber-400/80 hover:to-yellow-300/80"

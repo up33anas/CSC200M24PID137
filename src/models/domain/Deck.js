@@ -44,8 +44,6 @@ export default class Deck {
 
   // Deal one card from the top of the deck
   dealOneCard() {
-    console.log("Dealing one card from deck, cards left:", this.cards.length);
-    console.log(this.cards);
     return this.cards.pop() || null;
   }
 }

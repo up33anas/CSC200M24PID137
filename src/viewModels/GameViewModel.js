@@ -56,6 +56,7 @@ export default class GameViewModel {
 
   /** Move waste card to foundation */
   moveWasteToFoundation() {
+    console.log("ViewModel: Moving waste to foundation");
     this.controller.moveWasteToFoundation();
     this.updateState();
   }

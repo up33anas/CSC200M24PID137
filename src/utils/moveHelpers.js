@@ -74,14 +74,36 @@ export function moveTableauToFoundation(fromCol, foundation) {
   return moveCards(fromCol, destPile, () => true);
 }
 
-//
+// //
+// export function moveWasteToFoundation(waste, foundation) {
+//   if (!waste || waste.isEmpty()) {
+//     throw new Error("Cannot move from empty waste pile");
+//   }
+
+//   console.log("In moveWasteToFoundation function:", typeof waste, foundation);
+
+//   const movingCard = waste.peek();
+//   const destIndex = findFoundationIndex(movingCard, foundation);
+//   if (destIndex === -1) return false;
+
+//   const destPile = foundation.piles[destIndex];
+//   return moveCards(waste, destPile, () => true);
+// }
 export function moveWasteToFoundation(waste, foundation) {
+  if (!waste || waste.isEmpty()) {
+    throw new Error("Cannot move from empty waste pile");
+  }
+
   const movingCard = waste.peek();
   const destIndex = findFoundationIndex(movingCard, foundation);
-  if (destIndex === -1) return false;
+  if (destIndex === -1) return { success: false };
 
   const destPile = foundation.piles[destIndex];
-  return moveCards(waste, destPile, () => true);
+
+  // Use Queue's deleteTopNodes method
+  const result = moveCards(waste, destPile, () => true, 1);
+
+  return result;
 }
 
 //
