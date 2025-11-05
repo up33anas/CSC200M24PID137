@@ -12,7 +12,7 @@ export default function TableauUI({ tableau }) {
               <div
                 key={i}
                 className="absolute transition-transform duration-200 hover:-translate-y-1"
-                style={{ top: `${i * 30}px` }}
+                style={{ top: `${i * 17}px` }}
               >
                 <CardUI card={card} />
               </div>

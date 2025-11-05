@@ -16,8 +16,13 @@ export default class GameViewModel {
 
   /** Helper to sync backend state to frontend */
   updateState() {
-    // const snapshot = this.controller.getState();
-    this.setState({ ...this.controller.getState() }); // creates new top-level object
+    const state = this.controller.getState();
+    this.setState({
+      tableau: state.tableau,
+      foundation: state.foundation,
+      stock: state.stock,
+      waste: state.stock.getWasteCards(),
+    });
   }
 
   /** Start a completely new game */
@@ -28,8 +33,18 @@ export default class GameViewModel {
 
   /** Draw cards from stock */
   drawFromStock() {
-    this.controller.stock.resetFromWaste(); // handle recycle logic
-    this.controller.drawFromStock();
+    // this.controller.stock.resetFromWaste(); // handle recycle logic
+    this.controller.stock.drawThree();
+    console.log(
+      "Drew cards from stock to waste: ",
+      this.controller.getState().stock.getWasteCards()
+    );
+    this.updateState();
+  }
+
+  /** Recycle waste back to stock */
+  recycleFromWaste() {
+    this.controller.stock.resetFromWaste();
     this.updateState();
   }
 
