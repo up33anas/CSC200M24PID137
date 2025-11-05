@@ -1,50 +1,56 @@
+// components/CardUI.jsx
 import React, { useEffect } from "react";
 import * as deck from "@letele/playing-cards";
 import { useDrag } from "react-dnd";
 
-export default function CardUI({ card, columnIndex, onDragStart }) {
-  // Call useDrag
+export default function CardUI({
+  card,
+  columnIndex,
+  viewModel,
+  stack, // array of cards starting with this one (all face-up)
+}) {
+  // ---------- BUILD DRAG ITEM ----------
+  const dragItem = React.useMemo(() => {
+    if (!card?.faceUp) return null;
+    const cards = stack ?? [card];
+    return { type: "CARD", cards, fromCol: columnIndex };
+  }, [card, stack, columnIndex]);
+
   const [{ isDragging }, dragRef] = useDrag(
     () => ({
       type: "CARD",
-      item: card ? { card, fromCol: columnIndex } : null,
-      canDrag: !!card && card.faceUp,
-      collect: (monitor) => ({
-        isDragging: monitor.isDragging(),
-      }),
+      item: dragItem,
+      canDrag: !!dragItem,
+      collect: (monitor) => ({ isDragging: monitor.isDragging() }),
     }),
-    [card, columnIndex, onDragStart] // deps
+    [dragItem]
   );
 
-  // Call onDragStart when drag starts
+  // optional: tell viewModel a drag started (e.g. for UI feedback)
   useEffect(() => {
-    if (isDragging && card && typeof onDragStart === "function") {
-      onDragStart(card);
+    if (isDragging && viewModel?.onCardDragStart) {
+      viewModel.onCardDragStart?.(card);
     }
-  }, [isDragging, card, onDragStart]);
+  }, [isDragging, card, viewModel]);
 
-  // Early return: no card --> render nothing
   if (!card) return null;
 
-  // Build card key
-  const suitLetter = card.suit[0].toUpperCase();
-  const rankLetter = card.rank.toLowerCase();
-  const key = suitLetter + rankLetter;
+  const key = card.suit[0].toUpperCase() + card.rank.toLowerCase();
+  const Comp = deck[key] ?? deck["2C"];
+  const Back = deck["B2"];
 
-  const CardComponent = deck[key];
-  const Back = deck["B1"];
-
-  // Render the card
   return (
     <div
       ref={dragRef}
-      className={`w-30 h-45 cursor-grab transition-opacity ${
-        isDragging ? "opacity-60" : "opacity-100"
-      }`}
+      className={`
+        w-30 h-45 select-none transition-all
+        ${isDragging ? "opacity-50 scale-105" : "opacity-100"}
+        ${card.faceUp ? "cursor-grab active:cursor-grabbing" : "cursor-default"}
+      `}
       style={{ touchAction: "none" }}
     >
       {card.faceUp ? (
-        <CardComponent style={{ width: "100%", height: "100%" }} />
+        <Comp style={{ width: "100%", height: "100%" }} />
       ) : (
         <Back style={{ width: "100%", height: "100%" }} />
       )}

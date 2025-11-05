@@ -46,7 +46,7 @@ export default function BoardView({ viewModel }) {
 
         {/* Tableau Section */}
         <div className="w-full flex justify-center">
-          <Tableau tableau={state.tableau} />
+          <Tableau tableau={state.tableau} viewModel={viewModel} />
         </div>
       </div>
     </div>
