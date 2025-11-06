@@ -1,9 +1,27 @@
 import List from "../data structures/List.js";
+import Card from "./Card.js";
 
-// Tableau class to manage the seven tableau piles
 export default class Tableau {
   constructor() {
     this.columns = Array.from({ length: 7 }, () => new List());
+  }
+
+  toJSON() {
+    return {
+      columns: this.columns.map((col) =>
+        col.toArray().map((card) => card.toJSON())
+      ),
+    };
+  }
+
+  static fromJSON(data) {
+    const tableau = new Tableau();
+    tableau.columns = data.columns.map((colData) => {
+      const list = new List();
+      colData.forEach((cardData) => list.insertAtEnd(Card.fromJSON(cardData)));
+      return list;
+    });
+    return tableau;
   }
 
   deal(deck) {

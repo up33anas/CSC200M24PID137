@@ -64,6 +64,16 @@ export default class Stack {
     this.count = 0;
   }
 
+  toArray() {
+    const result = [];
+    let current = this.top;
+    while (current) {
+      result.push(current.data);
+      current = current.next;
+    }
+    return result.reverse(); // bottom-to-top order
+  }
+
   removeCard(card) {
     const cards = this.toArray().filter((c) => c !== card);
     this.clear();

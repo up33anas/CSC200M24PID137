@@ -55,15 +55,16 @@ export default function WasteView({ waste, viewModel }) {
       )}
 
       {visibleCards.map((card, index) => {
-        if (!card) return;
         const [{ isDragging }, drag] = useDrag(() => ({
           type: "CARD",
           item: { card, fromCol: null, source: "waste" },
-          canDrag: () => card.faceUp,
+          canDrag: () => card?.faceUp ?? false,
           collect: (monitor) => ({
             isDragging: monitor.isDragging(),
           }),
         }));
+
+        if (!card) return <div key={index} />; // render placeholder instead of skipping hoo
 
         return (
           <div

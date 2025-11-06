@@ -4,4 +4,18 @@ export default class Card {
     this.rank = rank; // "A"
     this.faceUp = false;
   }
+
+  toJSON() {
+    return {
+      suit: this.suit,
+      rank: this.rank,
+      faceUp: this.faceUp,
+    };
+  }
+
+  static fromJSON(data) {
+    const card = new Card(data.suit, data.rank);
+    card.faceUp = data.faceUp;
+    return card;
+  }
 }

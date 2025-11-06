@@ -3,7 +3,6 @@ import Tableau from "../models/domain/Tableau.js";
 import Foundation from "../models/domain/Foundation.js";
 import Stock from "../models/domain/Stock.js";
 import Stack from "../models/data structures/Stack.js";
-
 import {
   moveTableauToTableau,
   moveTableauToFoundation,
@@ -13,13 +12,7 @@ import {
 
 export default class GameController {
   constructor() {
-    // Initialize game state
-    this.startNewGame();
-  }
-
-  /* ----------------- CORE INITIALIZATION ----------------- */
-
-  startNewGame() {
+    // Core game state (models)
     this.deck = new Deck();
     this.deck.shuffle();
 
@@ -32,34 +25,54 @@ export default class GameController {
     // History stacks
     this.undoStack = new Stack();
     this.redoStack = new Stack();
+  }
 
-    // Save the initial state for undo safety
-    this.undoStack.push(this.getSnapshot());
+  // Return a deep clone snapshot of the current game state
+  getSnapshot() {
+    // Deep clone the game state (Deck, Tableau, Foundation, Stock)
+    return structuredClone({
+      deck: this.deck,
+      tableau: this.tableau,
+      foundation: this.foundation,
+      stock: this.stock,
+    });
+  }
+
+  // Restore game state from a snapshot
+  restoreSnapshot(snapshot) {
+    // Restore all models safely
+    this.deck = structuredClone(snapshot.deck);
+    this.tableau = structuredClone(snapshot.tableau);
+    this.foundation = structuredClone(snapshot.foundation);
+    this.stock = structuredClone(snapshot.stock);
+  }
+
+  startNewGame() {
+    this.deck = new Deck();
+    this.deck.shuffle();
+
+    this.tableau = new Tableau();
+    this.tableau.deal(this.deck);
+
+    this.foundation = new Foundation();
+    this.stock = new Stock(this.deck);
+
+    this.moveHistory = new Stack();
+    this.redoStack = new Stack();
 
     console.log("New game started.");
-    console.log("Tableau after new game:", this.tableau);
   }
 
-  /* ----------------- STATE SNAPSHOTS ----------------- */
-
-  // Capture a deep clone of the game state
-  getSnapshot() {
-    return {
-      deck: this.deck.toJSON(),
-      tableau: this.tableau.toJSON(),
-      foundation: this.foundation.toJSON(),
-      stock: this.stock.toJSON(),
-    };
+  // Get the current waste cards (top 3 or fewer)
+  getWasteCards() {
+    return this.stock.drawThree(); // returns an array of 1–3 cards
   }
 
-  restoreSnapshot(snapshot) {
-    this.deck = Deck.fromJSON(snapshot.deck);
-    this.tableau = Tableau.fromJSON(snapshot.tableau);
-    this.foundation = Foundation.fromJSON(snapshot.foundation);
-    this.stock = Stock.fromJSON(snapshot.stock);
+  selectCard(card) {
+    this.selectCard = card;
   }
 
-  // Return current full state (for UI rendering)
+  // Return a snapshot of the current game state
   getState() {
     return {
       tableau: this.tableau,
@@ -70,16 +83,6 @@ export default class GameController {
     };
   }
 
-  /* ----------------- MOVE RECORDING ----------------- */
-
-  recordMove(move) {
-    // Save *before* recording redo reset
-    this.undoStack.push(this.getSnapshot());
-    console.log(this.undoStack);
-    this.redoStack.clear(); // Clear redo history on new action
-    console.log("Move recorded:", move.type);
-  }
-
   /* ----------------- MOVE ACTIONS ----------------- */
 
   moveTableauToFoundation(colIndex) {
@@ -87,12 +90,14 @@ export default class GameController {
     const result = moveTableauToFoundation(from, this.foundation);
 
     if (result.success) {
-      this.recordMove({
+      const move = {
         type: "TABLEAU_TO_FOUNDATION",
         cards: result.cards,
         from,
         to: result.to,
-      });
+        numCards: result.cards.length,
+      };
+      this.recordMove(move);
     }
 
     return result.success;
@@ -101,22 +106,32 @@ export default class GameController {
   moveTableauToTableau(fromCol, toCol, numCards) {
     const from = this.tableau.columns[fromCol];
     const to = this.tableau.columns[toCol];
+
     const result = moveTableauToTableau(from, to, numCards);
 
     if (result.success) {
-      this.recordMove({
+      const move = {
         type: "TABLEAU_TO_TABLEAU",
         cards: result.cards,
         from,
         to,
         numCards,
-      });
+      };
+      this.recordMove(move);
     }
 
     return result.success;
   }
 
   moveWasteToTableau(colIndex, selectedCard) {
+    console.log(
+      "In GameController: Moving waste to tableau:",
+      colIndex,
+      "waste: ",
+      this.stock.wastePile,
+      "tableau:",
+      this.tableau
+    );
     const result = moveWasteToTableau(
       this.stock.wastePile,
       this.tableau,
@@ -125,66 +140,76 @@ export default class GameController {
     );
 
     if (result.success) {
-      this.recordMove({
+      const move = {
         type: "WASTE_TO_TABLEAU",
         cards: result.cards,
         from: this.stock.wastePile,
         to: this.tableau.columns[colIndex],
-      });
+        numCards: result.cards.length,
+      };
+      this.recordMove(move);
     }
 
     return result.success;
   }
 
+  // Move waste card to foundation
   moveWasteToFoundation() {
+    console.log("In GameController: Moving waste to foundation");
+    console.log(
+      this.stock.wastePile,
+      "waste------------------------foundation"
+    );
+
     const result = moveWasteToFoundation(this.stock.wastePile, this.foundation);
 
     if (result?.success) {
-      this.recordMove({
+      const move = {
         type: "WASTE_TO_FOUNDATION",
         cards: result.movedCards,
         from: this.stock.wastePile,
         to: result.to,
-      });
-      return true;
+        numCards: result.movedCards.length,
+      };
+      this.recordMove(move);
+      console.log("Move successful:", move);
+    } else {
+      console.log("Move invalid or failed");
     }
-
-    console.log("Move invalid or failed");
-    return false;
   }
 
   drawFromStock() {
     const drawnCards = this.stock.drawThree();
     if (drawnCards.length === 0) return [];
 
-    this.recordMove({
+    const move = {
       type: "DRAW",
       cards: drawnCards,
       from: this.stock,
       to: this.stock.wastePile,
-    });
+      numCards: drawnCards.length,
+    };
+    this.recordMove(move);
 
     return drawnCards;
   }
 
-  /* ----------------- UNDO / REDO ----------------- */
+  /* ----------------- UNDO REDO CONTROL ----------------- */
 
   undoLastMove() {
-    if (this.undoStack.size() <= 1) {
+    if (this.undoStack.isEmpty()) {
       console.log("No previous states to undo.");
       return false;
     }
 
-    // Move current state to redo stack
-    const currentState = this.undoStack.pop();
-    this.redoStack.push(currentState);
+    // Save current state into redoStack
+    this.redoStack.push(this.getSnapshot());
 
-    // Restore previous state
-    const prevState = this.undoStack.peek();
-    this.restoreSnapshot(prevState)
-      ? console.log("Undo successful.")
-      : console.log("Undo failed.");
+    // Restore previous
+    const prevState = this.undoStack.pop();
+    this.restoreSnapshot(prevState);
 
+    console.log("Undo successful.");
     return true;
   }
 
@@ -194,14 +219,12 @@ export default class GameController {
       return false;
     }
 
-    // Move current state to undo stack
+    // Save current into undoStack
     this.undoStack.push(this.getSnapshot());
 
-    // Restore the most recent redo state
+    // Restore future state
     const nextState = this.redoStack.pop();
-    this.restoreSnapshot(nextState)
-      ? console.log("Redo successful.")
-      : console.log("Redo failed.");
+    this.restoreSnapshot(nextState);
 
     console.log("Redo successful.");
     return true;

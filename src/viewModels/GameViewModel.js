@@ -38,13 +38,32 @@ export default class GameViewModel {
   }
 
   /** Helper to sync backend state to frontend */
+  // updateState() {
+  //   const state = this.controller.getState();
+  //   this.setState({
+  //     tableau: state.tableau,
+  //     foundation: state.foundation,
+  //     stock: state.stock,
+  //     waste: state.stock.getWasteCards(),
+  //   });
+  // }
+
   updateState() {
     const state = this.controller.getState();
+
+    // Clone tableau columns just like waste does
+    const tableau = {
+      ...state.tableau,
+      columns: state.tableau.columns.map((col) =>
+        col.toArray ? col.toArray() : col
+      ),
+    };
+
     this.setState({
-      tableau: state.tableau,
+      tableau,
       foundation: state.foundation,
       stock: state.stock,
-      waste: state.stock.getWasteCards(),
+      waste: state.stock.getWasteCards(), // always a new array
     });
   }
 
@@ -118,7 +137,21 @@ export default class GameViewModel {
 
   /** Move tableau card to another tableau column */
   moveTableauToTableau(fromCol, toCol, numCards) {
-    this.controller.moveTableauToTableau(fromCol, toCol, numCards);
+    const result = this.controller.moveTableauToTableau(
+      fromCol,
+      toCol,
+      numCards
+    );
+    console.log(numCards, "cards moved from tableau", fromCol, "to", toCol);
+    if (!result.success) {
+      this.setError("Invalid move!");
+    } else {
+      this.clearError();
+    }
+
+    this.notifyObservers();
+
+    this.clearSelection();
     this.updateState();
   }
 
@@ -130,12 +163,26 @@ export default class GameViewModel {
 
   /** Undo / Redo */
   undo() {
-    this.controller.undoLastMove();
+    const success = this.controller.undoLastMove();
+
+    if (!success) {
+      this.setError("Nothing to undo");
+    } else {
+      this.clearError();
+    }
+
     this.updateState();
   }
 
   redo() {
-    this.controller.redoLastMove();
+    const success = this.controller.redoLastMove();
+
+    if (!success) {
+      this.setError("Nothing to redo");
+    } else {
+      this.clearError();
+    }
+
     this.updateState();
   }
 

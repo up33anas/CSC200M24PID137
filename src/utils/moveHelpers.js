@@ -109,6 +109,60 @@ export function moveWasteToTableau(waste, tableau, colIndex, selectedCard) {
 }
 
 // Generic move executor - FIXED to return consistent result objects
+// export function moveCards(
+//   source,
+//   dest,
+//   validateFn,
+//   numCards = 1,
+//   selectedCard = null
+// ) {
+//   if (source.isEmpty()) return { success: false };
+
+//   let movingCards;
+
+//   if (selectedCard) {
+//     // Custom: find the clicked card and move only that one
+//     const allCards = source.toArray();
+//     const index = allCards.findIndex(
+//       (c) => c.suit === selectedCard.suit && c.rank === selectedCard.rank
+//     );
+//     if (index === -1) return { success: false };
+
+//     numCards == 1
+//       ? (movingCards = [allCards[index]])
+//       : (movingCards = allCards.slice(index));
+//   } else if (source.getTopNodes) {
+//     movingCards = source
+//       .getTopNodes(numCards)
+//       .reverse()
+//       .map((n) => n.data || n);
+//   } else {
+//     movingCards = [source.peek()];
+//   }
+
+//   const destTop = getTopCard(dest);
+//   if (!validateFn(movingCards, destTop)) return { success: false };
+
+//   // Remove that specific card from source
+//   if (selectedCard) {
+//     source.removeCard(selectedCard); // You’ll need to implement this helper
+//   } else if (source.deleteTopNodes) {
+//     source.deleteTopNodes(numCards);
+//   } else if (source.pop) {
+//     for (let i = 0; i < numCards; i++) source.pop();
+//   }
+
+//   insertCards(dest, movingCards);
+
+//   if (!source.isEmpty() && source.peek && !source.peek().faceUp) {
+//     source.peek().faceUp = true;
+//   }
+
+//   // Flip last card of source column if needed
+//   flipLastCardIfFaceDown(source);
+
+//   return { success: true, cards: movingCards, from: source, to: dest };
+// }
 export function moveCards(
   source,
   dest,
@@ -121,14 +175,19 @@ export function moveCards(
   let movingCards;
 
   if (selectedCard) {
-    // Custom: find the clicked card and move only that one
+    // Find the clicked card in source
     const allCards = source.toArray();
     const index = allCards.findIndex(
       (c) => c.suit === selectedCard.suit && c.rank === selectedCard.rank
     );
     if (index === -1) return { success: false };
 
-    movingCards = [allCards[index]];
+    // If source is tableau, move all cards from selected card to top
+    // If source is waste, only move selected card (waste only ever moves 1)
+    movingCards =
+      Array.isArray(source) || source.isTableau
+        ? allCards.slice(index)
+        : [allCards[index]];
   } else if (source.getTopNodes) {
     movingCards = source
       .getTopNodes(numCards)
@@ -141,9 +200,19 @@ export function moveCards(
   const destTop = getTopCard(dest);
   if (!validateFn(movingCards, destTop)) return { success: false };
 
-  // Remove that specific card from source
+  // Remove the moving cards from source
   if (selectedCard) {
-    source.removeCard(selectedCard); // You’ll need to implement this helper
+    if (Array.isArray(source) || source.isTableau) {
+      // Remove all cards from selected card onwards
+      const allCards = source.toArray();
+      const index = allCards.findIndex(
+        (c) => c.suit === selectedCard.suit && c.rank === selectedCard.rank
+      );
+      if (index !== -1) source.removeCardsFromIndex(index);
+    } else {
+      // Waste or other single-card piles
+      source.removeCard(selectedCard);
+    }
   } else if (source.deleteTopNodes) {
     source.deleteTopNodes(numCards);
   } else if (source.pop) {
@@ -152,9 +221,27 @@ export function moveCards(
 
   insertCards(dest, movingCards);
 
-  if (!source.isEmpty() && source.peek && !source.peek().faceUp) {
-    source.peek().faceUp = true;
-  }
+  // Flip top card of source if face down
+  flipLastCardIfFaceDown(source);
 
   return { success: true, cards: movingCards, from: source, to: dest };
+}
+
+function flipLastCardIfFaceDown(column) {
+  if (!column || column.isEmpty()) return;
+
+  let lastNode;
+  if (typeof column.getLastNode === "function") {
+    lastNode = column.getLastNode();
+  } else if (typeof column.toArray === "function") {
+    const arr = column.toArray();
+    lastNode = arr.length ? arr[arr.length - 1] : null;
+  } else if (Array.isArray(column)) {
+    lastNode = column[column.length - 1];
+  }
+
+  if (lastNode) {
+    const card = lastNode.data || lastNode;
+    if (!card.faceUp) card.faceUp = true;
+  }
 }

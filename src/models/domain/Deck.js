@@ -42,6 +42,18 @@ export default class Deck {
     }
   }
 
+  toJSON() {
+    return {
+      cards: this.cards.map((card) => card.toJSON()),
+    };
+  }
+
+  static fromJSON(data) {
+    const deck = new Deck();
+    deck.cards = data.cards.map(Card.fromJSON);
+    return deck;
+  }
+
   // Deal one card from the top of the deck
   dealOneCard() {
     return this.cards.pop() || null;

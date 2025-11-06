@@ -26,11 +26,13 @@ export function findFoundationIndex(movingCard, foundation) {
 
 // Checks if two suits are of the same color
 export function isSameColor(suit1, suit2) {
-  const redSuits = ["Hearts", "Diamonds"];
-  const blackSuits = ["Clubs", "Spades"];
+  const s1 = suit1.toLowerCase();
+  const s2 = suit2.toLowerCase();
+  const redSuits = ["hearts", "diamonds"];
+  const blackSuits = ["clubs", "spades"];
   return (
-    (redSuits.includes(suit1) && redSuits.includes(suit2)) ||
-    (blackSuits.includes(suit1) && blackSuits.includes(suit2))
+    (redSuits.includes(s1) && redSuits.includes(s2)) ||
+    (blackSuits.includes(s1) && blackSuits.includes(s2))
   );
 }
 

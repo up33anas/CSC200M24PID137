@@ -2,7 +2,7 @@ import React from "react";
 import { Undo2, Redo2, Sparkles } from "lucide-react";
 import { Lightbulb, Info, HelpCircle } from "lucide-react";
 
-export default function Header({ onUndo, onRedo, onHint }) {
+export default function Header({ viewModel }) {
   return (
     <header
       className="font-cinzel mx-auto mt-4 w-[90%] max-w-5xl bg-linear-to-r from-slate-900/70 via-navy-900/60 to-blue-950/60 
@@ -19,19 +19,19 @@ export default function Header({ onUndo, onRedo, onHint }) {
         <HeaderButton
           icon={<Undo2 size={18} />}
           label="Undo"
-          onClick={onUndo}
+          onClick={() => viewModel.undo()}
           color="from-slate-700/70 to-slate-600/70 hover:from-slate-700/80 hover:to-slate-800/80"
         />
         <HeaderButton
           icon={<Redo2 size={18} />}
           label="Redo"
-          onClick={onRedo}
+          onClick={() => viewModel.redo()}
           color="from-slate-700/70 to-slate-600/70 hover:from-slate-700/80 hover:to-slate-800/80"
         />
         <HeaderButton
           icon={<Lightbulb size={18} />}
           label="Hint"
-          onClick={onHint}
+          onClick={() => viewModel.undo()}
           color="from-amber-500/70 to-yellow-400/70 hover:from-amber-400/80 hover:to-yellow-300/80"
         />
       </div>

@@ -4,7 +4,7 @@ import { useDrop } from "react-dnd";
 
 // Single Tableau Column Component
 function TableauColumn({ column, colIndex, viewModel }) {
-  const pile = column.toArray();
+  const pile = column.toArray ? column.toArray() : column; // if array, just use it
 
   const handleDropCard = (item) => {
     try {
