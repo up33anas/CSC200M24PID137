@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import Tableau from "./Tableau.jsx";
 import FoundationView from "./Foundation.jsx";
 import StockView from "./Stock.jsx";
@@ -12,6 +13,7 @@ export default function BoardView({ viewModel }) {
     viewModel.setState = setState;
   }, [viewModel]);
 
+  const navigate = useNavigate();
   // Function to start a new game
   const handleNewGame = () => {
     if (window.confirm("Are you sure you want to start new game?")) {
@@ -24,7 +26,7 @@ export default function BoardView({ viewModel }) {
     console.log("Leaving game...");
     // Example: navigate away or reload
     if (window.confirm("Are you sure you want to leave the game?")) {
-      window.location.href = "/";
+      navigate("/leave");
     }
   };
 

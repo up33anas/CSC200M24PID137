@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import GameViewModel from "./viewModels/GameViewModel.js";
 import BoardView from "./views/BoardView.jsx";
 import Header from "./views/Header.jsx";
+import LeavePage from "./views/LeavePage.jsx";
+import RulesPage from "./views/RulesPage.jsx";
+import Home from "./views/HomePage.jsx";
 
 function App() {
   const [viewModel, setViewModel] = useState(null);
@@ -17,10 +21,24 @@ function App() {
     return <div className="text-white">Loading...</div>;
 
   return (
-    <div>
-      <Header viewModel={viewModel} />
-      <BoardView viewModel={viewModel} />
-    </div>
+    <Router>
+      <Routes>
+        {/* Home / Game Board */}
+        <Route path="/" element={<Home />}></Route>
+        <Route
+          path="/play"
+          element={
+            <>
+              <Header viewModel={viewModel} />
+              <BoardView viewModel={viewModel} />
+            </>
+          }
+        />
+        {/* Leave Page */}
+        <Route path="/leave" element={<LeavePage />} />
+        <Route path="/rules" element={<RulesPage />} />
+      </Routes>
+    </Router>
   );
 }
 

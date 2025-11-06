@@ -27,7 +27,7 @@ export default function Sidebar({
           </span>
         </div>
 
-        <div className="flex justify-between text-lg font-poppins">
+        <div className="flex justify-between text-xl font-poppins">
           <span>Moves:</span>
           <span>{moves}</span>
         </div>

@@ -42,6 +42,7 @@ export default class GameController {
     this.time = 0;
     this.timer = null; // for setInterval
 
+    this.stopTimer();
     this.startTimer();
 
     console.log("New game started.");
@@ -49,15 +50,14 @@ export default class GameController {
   }
 
   startTimer() {
+    // Clear previous interval if it exists
     if (this.timer) clearInterval(this.timer);
 
     this.timer = setInterval(() => {
-      this.time++; // increment time
+      this.time++;
 
-      // Trigger UI update via callback
-      if (this.onUpdate) {
-        this.onUpdate(this.getState()); // refresh state
-      }
+      // Trigger UI update
+      if (this.onUpdate) this.onUpdate(this.getState());
     }, 1000);
   }
 
