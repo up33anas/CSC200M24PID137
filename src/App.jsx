@@ -26,7 +26,7 @@ function App() {
         {/* Home / Game Board */}
         <Route path="/" element={<Home />}></Route>
         <Route
-          path="/play"
+          path="/game"
           element={
             <>
               <Header viewModel={viewModel} />

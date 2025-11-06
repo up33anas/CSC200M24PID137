@@ -10,7 +10,7 @@ export default function Header({ viewModel }) {
       shadow-2xl border border-teal-700/30 backdrop-blur-md rounded-2xl"
     >
       {/* Game Title */}
-      <h1 className="text-3xl font-bold tracking-wide drop-shadow-lg text-amber-100 select-none text-center">
+      <h1 className="text-3xl font-bold tracking-wide drop-shadow-lg text-yellow-400 select-none text-center">
         ♠ The Pseudo Solitaire
       </h1>
 

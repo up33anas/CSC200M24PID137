@@ -1,5 +1,12 @@
 import React from "react";
-import { RefreshCcw, LogOut } from "lucide-react"; // icons
+import {
+  RefreshCcw,
+  LogOut,
+  Clock,
+  Activity,
+  Star,
+  Percent,
+} from "lucide-react";
 
 export default function Sidebar({
   moves = 0,
@@ -16,29 +23,40 @@ export default function Sidebar({
     <div className="bg-linear-to-b from-slate-950/80 via-navy-900/70 to-blue-950/70 text-white rounded-2xl p-6 shadow-2xl flex flex-col justify-between border border-teal-700/40 backdrop-blur-md w-64">
       {/* Stats Section */}
       <div className="flex flex-col gap-5">
-        <h2 className="text-2xl font-cinzel text-center mb-2 tracking-wide text-amber-100">
+        <h2 className="text-2xl font-cinzel text-center mb-2 tracking-wide text-yellow-400">
           YOUR STATS
         </h2>
 
         <div className="flex justify-between text-lg font-poppins">
-          <span>Time:</span>
+          <span className="flex items-center gap-1">
+            <Clock size={18} />
+            Time:
+          </span>
           <span>
             {minutes}:{seconds.toString().padStart(2, "0")}
           </span>
         </div>
 
         <div className="flex justify-between text-xl font-poppins">
-          <span>Moves:</span>
+          <span className="flex items-center gap-1">
+            <Activity size={18} /> Moves:
+          </span>
           <span>{moves}</span>
         </div>
 
         <div className="flex justify-between text-lg font-poppins">
-          <span>Score:</span>
+          <span className="flex items-center gap-1">
+            <Star size={18} />
+            Score:
+          </span>
           <span>{score}</span>
         </div>
 
         <div>
-          <span className="block mb-1 text-lg font-poppins">Progress</span>
+          <span className="flex items-center gap-1 mb-1 text-lg font-poppins">
+            <Percent />
+            Progress
+          </span>
           <div className="w-full bg-blue-950 h-3 rounded-full overflow-hidden">
             <div
               className="bg-linear-to-r from-sky-400 via-blue-500 to-indigo-600 h-full transition-all duration-500"
