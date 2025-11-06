@@ -41,7 +41,7 @@ export default function Sidebar({
           <span className="block mb-1 text-lg font-poppins">Progress</span>
           <div className="w-full bg-blue-950 h-3 rounded-full overflow-hidden">
             <div
-              className="bg-gradient-to-r from-sky-400 via-blue-500 to-indigo-600 h-full transition-all duration-500"
+              className="bg-linear-to-r from-sky-400 via-blue-500 to-indigo-600 h-full transition-all duration-500"
               style={{ width: `${progress}%` }}
             />
           </div>

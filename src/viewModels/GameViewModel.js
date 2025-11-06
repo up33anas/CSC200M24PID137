@@ -4,9 +4,32 @@ export default class GameViewModel {
   constructor(setState) {
     this.controller = new GameController();
     this.setState = setState;
+    this.selectedCard = null;
+    this.errorMessage = null;
+    this.observers = [];
 
     // Initialize UI with first game state
     this.updateState();
+  }
+
+  // --- CARD SELECTION LOGIC ---
+  selectCard(card) {
+    console.log("Selected card:", card);
+    this.selectedCard = card;
+  }
+
+  clearSelection() {
+    this.selectedCard = null;
+  }
+
+  setError(message) {
+    this.errorMessage = message;
+    this.notifyObservers();
+  }
+
+  clearError() {
+    this.errorMessage = null;
+    this.notifyObservers();
   }
 
   /** Get latest state */
@@ -50,14 +73,46 @@ export default class GameViewModel {
 
   /** Move waste card to tableau */
   moveWasteToTableau(colIndex) {
-    this.controller.moveWasteToTableau(colIndex);
+    if (!this.selectedCard) {
+      console.warn("No card selected!");
+      return;
+    }
+    console.log("Moving selected waste card to tableau:", this.selectedCard);
+
+    const result = this.controller.moveWasteToTableau(
+      colIndex,
+      this.selectedCard
+    );
+    if (!result.success) {
+      this.setError("Invalid move!");
+    } else {
+      this.clearError();
+    }
+
+    this.notifyObservers();
+
+    this.clearSelection();
     this.updateState();
+  }
+
+  notifyObservers() {
+    this.observers.forEach((cb) => cb());
+  }
+
+  subscribe(cb) {
+    this.observers.push(cb);
   }
 
   /** Move waste card to foundation */
   moveWasteToFoundation() {
-    console.log("ViewModel: Moving waste to foundation");
-    this.controller.moveWasteToFoundation();
+    if (!this.selectedCard) {
+      console.warn("No card selected!");
+      return;
+    }
+
+    console.log("Moving selected waste card to foundation:", this.selectedCard);
+    this.controller.moveWasteToFoundation(this.selectedCard);
+    this.clearSelection();
     this.updateState();
   }
 

@@ -1,6 +1,6 @@
-// import React from "react";
-// import CardUI from "./CardUI";
-// import { useDrag } from "react-dnd";
+import React from "react";
+import CardUI from "./CardUI";
+import { useDrag } from "react-dnd";
 
 // export default function WasteView({ waste, viewModel }) {
 //   // Show top 3 cards
@@ -42,12 +42,8 @@
 //       })}
 //     </div>
 //   );
-// }import React from "react";import React from "react";
-import CardUI from "./CardUI";
-import { useDrag } from "react-dnd";
-
+// }
 export default function WasteView({ waste, viewModel }) {
-  // Show top 3 cards
   const visibleCards = waste.slice(-3);
 
   return (
@@ -58,38 +54,37 @@ export default function WasteView({ waste, viewModel }) {
         </div>
       )}
 
-      {visibleCards.map((card, index) => (
-        <CardWrapper
-          key={card.id || index}
-          card={card}
-          viewModel={viewModel}
-          index={index}
-        />
-      ))}
-    </div>
-  );
-}
+      {visibleCards.map((card, index) => {
+        if (!card) return;
+        const [{ isDragging }, drag] = useDrag(() => ({
+          type: "CARD",
+          item: { card, fromCol: null, source: "waste" },
+          canDrag: () => card.faceUp,
+          collect: (monitor) => ({
+            isDragging: monitor.isDragging(),
+          }),
+        }));
 
-// Separate wrapper to use useDrag at top level
-function CardWrapper({ card, viewModel, index }) {
-  const [{ isDragging }, dragRef] = useDrag(() => ({
-    type: "CARD",
-    item: { card, fromCol: null, source: "waste", stack: [card] },
-    canDrag: () => card.faceUp,
-    collect: (monitor) => ({ isDragging: monitor.isDragging() }),
-  }));
-
-  return (
-    <div
-      ref={dragRef}
-      className="absolute transition-transform duration-300 cursor-grab"
-      style={{
-        left: `${index * 27}px`,
-        zIndex: 100 + index,
-        opacity: isDragging ? 0.4 : 1,
-      }}
-    >
-      <CardUI card={card} viewModel={viewModel} source="waste" />
+        return (
+          <div
+            key={card.id || index}
+            ref={drag}
+            onClick={() => viewModel.selectCard(card)} // 👈 select card
+            className="absolute transition-transform duration-300 cursor-pointer"
+            style={{
+              left: `${index * 27}px`,
+              zIndex: 100 + index,
+              opacity: isDragging ? 0.4 : 1,
+              boxShadow:
+                viewModel.selectedCard === card
+                  ? "0 0 12px 3px rgba(255,255,0,0.7)"
+                  : "none",
+            }}
+          >
+            <CardUI card={card} viewModel={viewModel} source="waste" />
+          </div>
+        );
+      })}
     </div>
   );
 }

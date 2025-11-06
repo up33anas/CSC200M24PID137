@@ -58,4 +58,15 @@ export default class Stack {
     }
     console.log(result);
   }
+
+  clear() {
+    this.top = null;
+    this.count = 0;
+  }
+
+  removeCard(card) {
+    const cards = this.toArray().filter((c) => c !== card);
+    this.clear();
+    cards.forEach((c) => (this.enqueue ? this.enqueue(c) : this.push(c)));
+  }
 }

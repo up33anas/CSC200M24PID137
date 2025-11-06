@@ -81,4 +81,16 @@ export default class Queue {
     }
     console.log(result);
   }
+
+  removeCard(card) {
+    const cards = this.toArray().filter((c) => c !== card);
+    this.clear();
+    cards.forEach((c) => (this.enqueue ? this.enqueue(c) : this.push(c)));
+  }
+
+  clear() {
+    this.front = null;
+    this.rear = null;
+    this._size = 0; // optional if you’re tracking size
+  }
 }
