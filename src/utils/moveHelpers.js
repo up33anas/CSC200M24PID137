@@ -39,14 +39,14 @@ export function insertCards(dest, cards) {
   if (!cards || cards.length === 0) return;
 
   console.log("Inserting cards into destination:", dest, cards);
-  console.log("cards:", typeof cards, cards);
-  console.log("dest type:", typeof dest, dest);
+  // console.log("cards:", typeof cards, cards);
+  // console.log("dest type:", typeof dest, dest);
 
   if (dest.insertAtEnd) {
-    // for stack or linked list-based tableau
     cards.forEach((c) => dest.insertAtEnd(c));
+  } else if (dest.push) {
+    cards.forEach((c) => dest.push(c));
   } else if (dest.enqueue) {
-    // for queue (shouldn't happen for tableau)
     cards.forEach((c) => dest.enqueue(c));
   } else if (Array.isArray(dest)) {
     cards.forEach((c) => dest.push(c));
@@ -57,6 +57,14 @@ export function insertCards(dest, cards) {
 
 // Rule-specific wrappers for readability
 export function moveTableauToTableau(fromCol, toCol, numCards) {
+  console.log(
+    "moveHelpers line 60 moving",
+    numCards,
+    "cards from",
+    fromCol,
+    "to",
+    toCol
+  );
   return moveCards(
     fromCol,
     toCol,
@@ -72,8 +80,18 @@ export function moveTableauToTableau(fromCol, toCol, numCards) {
 }
 
 export function moveTableauToFoundation(fromCol, foundation) {
-  const movingCard = fromCol.peek();
+  const movingCard = fromCol.getTopNodes(1)[0]?.data || fromCol.peek();
+  console.log(
+    "Moving card:",
+    movingCard,
+    "typeof movingCard:",
+    typeof movingCard
+  );
+
   const destIndex = findFoundationIndex(movingCard, foundation);
+
+  console.log("Moving card:", movingCard);
+  console.log("Determined foundation index:", destIndex);
 
   if (destIndex === -1) {
     console.log("Invalid move to foundation");
@@ -84,17 +102,37 @@ export function moveTableauToFoundation(fromCol, foundation) {
   return moveCards(fromCol, destPile, () => true);
 }
 
-export function moveWasteToFoundation(waste, foundation) {
+// export function moveWasteToFoundation(waste, foundation) {
+//   if (!waste || waste.isEmpty()) {
+//     console.log("Waste pile is empty");
+//     return { success: false };
+//   }
+
+//   console.log("Waste pile top card:", waste.peek());
+//   const movingCard = waste.peek();
+//   const destIndex = findFoundationIndex(movingCard, foundation);
+//   if (destIndex === -1) return { success: false };
+
+//   const destPile = foundation.piles[destIndex];
+//   return moveCards(waste, destPile, () => true, 1);
+// }
+export function moveWasteToFoundation(waste, foundation, selectedCard = null) {
   if (!waste || waste.isEmpty()) {
+    console.log("Waste pile is empty");
     return { success: false };
   }
 
-  const movingCard = waste.peek();
+  // Use the selected card if provided, otherwise default to top
+  const movingCard = selectedCard || waste.peek();
+  console.log("Waste pile moving card:", movingCard);
+  // Find the correct foundation pile for this card
   const destIndex = findFoundationIndex(movingCard, foundation);
   if (destIndex === -1) return { success: false };
 
   const destPile = foundation.piles[destIndex];
-  return moveCards(waste, destPile, () => true, 1);
+
+  // Call moveCards with the selected card
+  return moveCards(waste, destPile, () => true, 1, movingCard);
 }
 
 export function moveWasteToTableau(waste, tableau, colIndex, selectedCard) {
@@ -174,25 +212,41 @@ export function moveCards(
 
   let movingCards;
 
+  // if (selectedCard) {
+  //   // Find the clicked card in source
+  //   const allCards = source.toArray();
+  //   const index = allCards.findIndex(
+  //     (c) => c.suit === selectedCard.suit && c.rank === selectedCard.rank
+  //   );
+  //   if (index === -1) return { success: false };
+
+  //   // If source is tableau, move all cards from selected card to top
+  //   // If source is waste, only move selected card (waste only ever moves 1)
+  //   movingCards =
+  //     Array.isArray(source) || source.isTableau
+  //       ? allCards.slice(index)
+  //       : [allCards[index]];
+  // } else if (source.getTopNodes) {
+  //   movingCards = source
+  //     .getTopNodes(numCards)
+  //     .reverse()
+  //     .map((n) => n.data || n);
+  // } else {
+  //   movingCards = [source.peek()];
+  // }
   if (selectedCard) {
-    // Find the clicked card in source
+    // Find index of selected card
     const allCards = source.toArray();
     const index = allCards.findIndex(
       (c) => c.suit === selectedCard.suit && c.rank === selectedCard.rank
     );
     if (index === -1) return { success: false };
 
-    // If source is tableau, move all cards from selected card to top
-    // If source is waste, only move selected card (waste only ever moves 1)
-    movingCards =
-      Array.isArray(source) || source.isTableau
-        ? allCards.slice(index)
-        : [allCards[index]];
+    // Move all cards from selected card to top
+    movingCards = allCards.slice(index);
   } else if (source.getTopNodes) {
-    movingCards = source
-      .getTopNodes(numCards)
-      .reverse()
-      .map((n) => n.data || n);
+    // getTopNodes should return top-to-bottom slice of `numCards`
+    movingCards = source.getTopNodes(numCards).map((n) => n.data || n); // Remove reverse() if your top is already last in array
   } else {
     movingCards = [source.peek()];
   }

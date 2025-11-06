@@ -24,7 +24,7 @@ export default function BoardView({ viewModel }) {
     console.log("Leaving game...");
     // Example: navigate away or reload
     if (window.confirm("Are you sure you want to leave the game?")) {
-      window.location.href = "google.com";
+      window.location.href = "/";
     }
   };
 

@@ -12,7 +12,8 @@ import {
 } from "../utils/moveHelpers.js";
 
 export default class GameController {
-  constructor() {
+  constructor(onUpdate) {
+    this.onUpdate = onUpdate;
     // Initialize game state
     this.startNewGame();
   }
@@ -36,8 +37,33 @@ export default class GameController {
     // Save the initial state for undo safety
     this.undoStack.push(this.getSnapshot());
 
+    this.moves = 0;
+    this.score = 0;
+    this.time = 0;
+    this.timer = null; // for setInterval
+
+    this.startTimer();
+
     console.log("New game started.");
     console.log("Tableau after new game:", this.tableau);
+  }
+
+  startTimer() {
+    if (this.timer) clearInterval(this.timer);
+
+    this.timer = setInterval(() => {
+      this.time++; // increment time
+
+      // Trigger UI update via callback
+      if (this.onUpdate) {
+        this.onUpdate(this.getState()); // refresh state
+      }
+    }, 1000);
+  }
+
+  stopTimer() {
+    if (this.timer) clearInterval(this.timer);
+    this.timer = null;
   }
 
   /* ----------------- STATE SNAPSHOTS ----------------- */
@@ -75,9 +101,17 @@ export default class GameController {
   recordMove(move) {
     // Save *before* recording redo reset
     this.undoStack.push(this.getSnapshot());
-    console.log(this.undoStack);
+    // console.log(this.undoStack);
     this.redoStack.clear(); // Clear redo history on new action
     console.log("Move recorded:", move.type);
+
+    this.moves++;
+
+    // Example scoring logic
+    if (move.type === "TABLEAU_TO_TABLEAU") this.score += 5;
+    else if (move.type === "TABLEAU_TO_FOUNDATION") this.score += 10;
+    else if (move.type === "WASTE_TO_TABLEAU") this.score += 5;
+    else if (move.type === "WASTE_TO_FOUNDATION") this.score += 10;
   }
 
   /* ----------------- MOVE ACTIONS ----------------- */
@@ -136,8 +170,12 @@ export default class GameController {
     return result.success;
   }
 
-  moveWasteToFoundation() {
-    const result = moveWasteToFoundation(this.stock.wastePile, this.foundation);
+  moveWasteToFoundation(selectedCard) {
+    const result = moveWasteToFoundation(
+      this.stock.wastePile,
+      this.foundation,
+      selectedCard
+    );
 
     if (result?.success) {
       this.recordMove({
@@ -169,23 +207,63 @@ export default class GameController {
 
   /* ----------------- UNDO / REDO ----------------- */
 
+  // undoLastMove() {
+  //   if (this.undoStack.size() <= 1) {
+  //     console.log("No previous states to undo.");
+  //     return false;
+  //   }
+
+  //   // Move current state to redo stack
+  //   const currentState = this.undoStack.pop();
+  //   this.redoStack.push(currentState);
+
+  //   // Restore previous state
+  //   const prevState = this.undoStack.peek();
+  //   this.restoreSnapshot(prevState)
+  //     ? console.log("Undo successful.")
+  //     : console.log("Undo failed.");
+
+  //   return true;
+  // }
+
+  // redoLastMove() {
+  //   if (this.redoStack.isEmpty()) {
+  //     console.log("No moves to redo.");
+  //     return false;
+  //   }
+
+  //   // Move current state to undo stack
+  //   this.undoStack.push(this.getSnapshot());
+
+  //   // Restore the most recent redo state
+  //   const nextState = this.redoStack.pop();
+  //   this.undoStack.push(nextState);
+  //   this.restoreSnapshot(nextState)
+  //     ? console.log("Redo successful.")
+  //     : console.log("Redo failed.");
+
+  //   console.log("Redo successful.");
+  //   return true;
+  // }
   undoLastMove() {
     if (this.undoStack.size() <= 1) {
       console.log("No previous states to undo.");
       return false;
     }
 
-    // Move current state to redo stack
+    // Pop current state from undo stack and push it to redo stack
     const currentState = this.undoStack.pop();
     this.redoStack.push(currentState);
 
-    // Restore previous state
+    // Peek previous state on undo stack and restore it
     const prevState = this.undoStack.peek();
-    this.restoreSnapshot(prevState)
-      ? console.log("Undo successful.")
-      : console.log("Undo failed.");
-
-    return true;
+    if (this.restoreSnapshot(prevState)) {
+      console.log("Undo successful.");
+      return true;
+    } else {
+      console.log("Undo failed.");
+      return false;
+    }
   }
 
   redoLastMove() {
@@ -194,17 +272,23 @@ export default class GameController {
       return false;
     }
 
-    // Move current state to undo stack
-    this.undoStack.push(this.getSnapshot());
-
-    // Restore the most recent redo state
+    // Pop next state from redo stack
     const nextState = this.redoStack.pop();
-    this.restoreSnapshot(nextState)
-      ? console.log("Redo successful.")
-      : console.log("Redo failed.");
 
-    console.log("Redo successful.");
-    return true;
+    // Push current state to undo stack before applying redo
+    const currentState = this.getSnapshot();
+    this.undoStack.push(currentState);
+
+    // Restore the redo state
+    if (this.restoreSnapshot(nextState)) {
+      // Also push the redone state to undo stack so further undo works
+      this.undoStack.push(nextState);
+      console.log("Redo successful.");
+      return true;
+    } else {
+      console.log("Redo failed.");
+      return false;
+    }
   }
 
   /* ----------------- GAME STATUS ----------------- */

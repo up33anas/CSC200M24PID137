@@ -1,4 +1,5 @@
 import React from "react";
+import CardUI from "./CardUI.jsx";
 import { useDrop } from "react-dnd";
 
 export default function FoundationView({ foundation, viewModel }) {
@@ -7,21 +8,18 @@ export default function FoundationView({ foundation, viewModel }) {
   return (
     <div className="flex gap-6">
       {foundation.piles.map((pile, index) => {
-        const topCard = pile[pile.length - 1];
+        const topCard = pile.peek && !pile.isEmpty() ? pile.peek() : null;
 
         const [{ isOver }, drop] = useDrop(() => ({
           accept: "CARD",
           drop: (item) => {
             try {
               if (item.source === "tableau") {
-                console.log("Item source", item.source);
-
-                // tableau → foundation: pass column index
                 viewModel.moveTableauToFoundation(item.fromCol);
               } else if (item.source === "waste") {
-                // waste → foundation: just call the method
-                viewModel.moveWasteToFoundation();
-                console.log("Item source: ", item.source);
+                console.log("card to drop", item.card);
+                viewModel.moveWasteToFoundation(item.card);
+                console.log("wasteToFoundation above me!");
               }
             } catch (err) {
               console.log("Invalid move:", err.message);
@@ -39,7 +37,11 @@ export default function FoundationView({ foundation, viewModel }) {
             `}
           >
             {topCard ? (
-              <span className="text-xl">{`${topCard.rank}${topCard.suit.symbol}`}</span>
+              <CardUI
+                card={topCard}
+                viewModel={viewModel}
+                source="foundation"
+              />
             ) : (
               <span className="opacity-50 text-5xl">{symbols[index]}</span>
             )}

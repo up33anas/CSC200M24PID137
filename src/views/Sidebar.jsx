@@ -4,7 +4,7 @@ import { RefreshCcw, LogOut } from "lucide-react"; // icons
 export default function Sidebar({
   moves = 0,
   score = 0,
-  progress = 70,
+  progress = 60,
   time = 0,
   onNewGame,
   onLeave,

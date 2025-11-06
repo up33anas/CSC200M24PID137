@@ -1,15 +1,34 @@
 import GameController from "../controllers/GameController.js";
 
 export default class GameViewModel {
+  // constructor(setState) {
+  //   this.controller = new GameController();
+  //   this.setState = setState;
+  //   this.selectedCard = null;
+  //   this.errorMessage = null;
+  //   this.observers = [];
+
+  //   // Initialize UI with first game state
+  //   this.updateState();
+  // }
+
   constructor(setState) {
-    this.controller = new GameController();
     this.setState = setState;
+    this.controller = new GameController((state) => {
+      this.setState({
+        ...state,
+        time: this.controller.time,
+        moves: this.controller.moves,
+        score: this.controller.score,
+        progress: this.getProgressPercentage(),
+      });
+    });
+
     this.selectedCard = null;
     this.errorMessage = null;
     this.observers = [];
 
-    // Initialize UI with first game state
-    this.updateState();
+    this.updateState(); // initialize
   }
 
   // --- CARD SELECTION LOGIC ---
@@ -48,10 +67,28 @@ export default class GameViewModel {
   //   });
   // }
 
+  // updateState() {
+  //   const state = this.controller.getState();
+
+  //   // Clone tableau columns just like waste does
+  //   const tableau = {
+  //     ...state.tableau,
+  //     columns: state.tableau.columns.map((col) =>
+  //       col.toArray ? col.toArray() : col
+  //     ),
+  //   };
+
+  //   this.setState({
+  //     tableau,
+  //     foundation: state.foundation,
+  //     stock: state.stock,
+  //     waste: state.stock.getWasteCards(), // always a new array
+  //   });
+  // }
+
   updateState() {
     const state = this.controller.getState();
 
-    // Clone tableau columns just like waste does
     const tableau = {
       ...state.tableau,
       columns: state.tableau.columns.map((col) =>
@@ -59,13 +96,27 @@ export default class GameViewModel {
       ),
     };
 
+    // Compute progress
+    const completedCards = state.foundation.piles.reduce(
+      (sum, pile) => sum + (pile.count || pile.size || 0),
+      0
+    );
+    const totalCards = 52;
+    const progress = Math.floor((completedCards / totalCards) * 100);
+
+    // Add moves, score, time from controller if they exist
     this.setState({
       tableau,
       foundation: state.foundation,
       stock: state.stock,
-      waste: state.stock.getWasteCards(), // always a new array
+      waste: state.stock.getWasteCards(),
+      moves: this.controller.moves || 0,
+      score: this.controller.score || 0,
+      time: this.controller.time || 0,
+      progress,
     });
   }
+  up;
 
   /** Start a completely new game */
   startNewGame() {
