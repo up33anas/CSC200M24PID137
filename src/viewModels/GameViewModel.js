@@ -14,6 +14,26 @@ export default class GameViewModel {
     this.observers = [];
 
     this.updateState(); // initial render
+    this.showVictoryModal = false; // initialize
+    this.controller.onGameWin = this.handleGameWin.bind(this);
+
+    if (typeof window !== "undefined") {
+      window.forceWin = this.forceWin.bind(this);
+    }
+  }
+
+  handleGameWin() {
+    console.log("handleGameWin() triggered — showing victory modal!");
+    this.stopTimer?.(); // stop timer if exists
+    this.showVictoryModal = true;
+
+    // Trigger React re-render
+    if (this.setState) {
+      this.setState((prev) => ({
+        ...prev,
+        showVictoryModal: true,
+      }));
+    }
   }
 
   /** --- CARD SELECTION --- */
@@ -39,7 +59,16 @@ export default class GameViewModel {
 
   /** --- STATE SYNC --- */
   getState() {
-    return this.controller.getState();
+    const state = this.controller.getState();
+
+    return {
+      ...state,
+      moves: this.controller.moves,
+      score: this.controller.score,
+      progress: this.controller.progress,
+      time: this.controller.time,
+      showVictoryModal: this.showVictoryModal,
+    };
   }
 
   updateState() {
@@ -76,8 +105,14 @@ export default class GameViewModel {
 
   /** --- GAME ACTIONS --- */
   startNewGame() {
+    this.showVictoryModal = false;
     this.controller.startNewGame();
     this.updateState();
+
+    this.setState((prev) => ({
+      ...prev,
+      showVictoryModal: false,
+    }));
   }
 
   drawFromStock() {
@@ -143,6 +178,45 @@ export default class GameViewModel {
     if (!success) this.setError("Nothing to redo");
     else this.clearError();
     this.updateState();
+  }
+
+  forceWin() {
+    console.log("forceWin()");
+
+    try {
+      // Fill all 4 foundations
+      for (let i = 0; i < 4; i++) {
+        this.controller.foundation.piles[i] = Array(13).fill({ dummy: true });
+      }
+
+      // Clear tableau
+      for (let i = 0; i < 7; i++) {
+        this.controller.tableau.columns[i] = [];
+      }
+
+      // Properly clear stock and waste
+      this.controller.stock.stockPile.front = null;
+      this.controller.stock.stockPile.rear = null;
+      this.controller.stock.wastePile.top = null;
+      this.controller.stock.cards = [];
+      this.controller.stock.stockPile.count = 0;
+      this.controller.stock.wastePile.count = 0;
+
+      console.log("Force win executed successfully!");
+      this.updateState();
+
+      const won = this.controller.checkVictory();
+      console.log("Victory condition check:", won);
+      if (won && this.controller.onGameWin) {
+        this.controller.onGameWin();
+      }
+    } catch (err) {
+      console.error("Error during forceWin:", err);
+    }
+  }
+
+  onGameWin(callback) {
+    this.onGameWin = callback;
   }
 
   /** --- VICTORY CHECK --- */

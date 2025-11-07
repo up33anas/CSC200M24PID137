@@ -79,6 +79,8 @@ import FoundationView from "./Foundation.jsx";
 import StockView from "./Stock.jsx";
 import WasteView from "./Waste.jsx";
 import Sidebar from "./Sidebar.jsx";
+import Confetti from "react-confetti";
+import { useWindowSize } from "react-use";
 
 export default function BoardView({ viewModel }) {
   const [state, setState] = React.useState(viewModel.getState());
@@ -129,6 +131,37 @@ export default function BoardView({ viewModel }) {
         <div className="w-full flex justify-center">
           <Tableau tableau={state.tableau} viewModel={viewModel} />
         </div>
+
+        {state.showVictoryModal && (
+          <>
+            {/* 🎉 Confetti persists as long as modal is visible */}
+            <Confetti
+              width={window.innerWidth}
+              height={window.innerHeight}
+              numberOfPieces={400}
+              gravity={0.2}
+              recycle={true} // keep it going until user clicks new game
+            />
+
+            {/* 🎇 Modal Overlay */}
+            <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+              <div className="bg-white rounded-2xl p-8 shadow-xl text-center w-[400px] animate-pop">
+                <h1 className="text-3xl font-bold mb-4 text-blue-700">
+                  Congratulations!
+                </h1>
+                <p className="text-gray-600 mb-6">
+                  You’ve successfully completed the game.
+                </p>
+                <button
+                  onClick={() => viewModel.startNewGame()}
+                  className="px-6 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition"
+                >
+                  Start New Game
+                </button>
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

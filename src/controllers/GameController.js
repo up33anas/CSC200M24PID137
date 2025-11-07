@@ -149,6 +149,11 @@ export default class GameController {
         from,
         to: result.to,
       });
+
+      // Check victory
+      if (this.checkVictory()) {
+        if (this.onGameWin) this.onGameWin();
+      }
     }
 
     return result.success;
@@ -169,6 +174,10 @@ export default class GameController {
       });
     }
 
+    // Check victory
+    if (this.checkVictory()) {
+      if (this.onGameWin) this.onGameWin();
+    }
     return result.success;
   }
 
@@ -189,6 +198,11 @@ export default class GameController {
       });
     }
 
+    // Check victory
+    if (this.checkVictory()) {
+      if (this.onGameWin) this.onGameWin();
+    }
+
     return result.success;
   }
 
@@ -206,6 +220,12 @@ export default class GameController {
         from: this.stock.wastePile,
         to: result.to,
       });
+
+      // Victory check
+      if (this.checkVictory()) {
+        if (this.onGameWin) this.onGameWin();
+      }
+
       return true;
     }
 
@@ -277,11 +297,41 @@ export default class GameController {
   /* ----------------- GAME STATUS ----------------- */
 
   checkVictory() {
-    return (
-      this.foundation.piles.every((pile) => pile.size === 13) &&
-      this.tableau.columns.every((col) => col.isEmpty()) &&
-      this.stock.isEmpty()
-    );
+    console.log("🔍 Checking victory condition...");
+
+    // --- Check foundations ---
+    const allFoundationsFull = this.foundation.piles.every((pile) => {
+      if (!pile) return false;
+      if (Array.isArray(pile)) return pile.length === 13;
+      if (typeof pile.size !== "undefined") return pile.size === 13;
+      if (typeof pile.count !== "undefined") return pile.count === 13;
+      return false;
+    });
+
+    // --- Check tableau ---
+    const allTableauEmpty = this.tableau.columns.every((col) => {
+      if (!col) return false;
+      if (Array.isArray(col)) return col.length === 0;
+      if (typeof col.isEmpty === "function") return col.isEmpty();
+      if (typeof col.count !== "undefined") return col.count === 0;
+      return false;
+    });
+
+    // --- Check stock ---
+    const stockEmpty =
+      (typeof this.stock.isEmpty === "function" && this.stock.isEmpty()) ||
+      (this.stock.stockPile?.count === 0 &&
+        this.stock.wastePile?.count === 0 &&
+        this.stock.cards?.count === 0);
+
+    console.log("foundation full:", allFoundationsFull);
+    console.log("tableau empty:", allTableauEmpty);
+    console.log("stock empty:", stockEmpty);
+
+    const victory = allFoundationsFull && allTableauEmpty && stockEmpty;
+
+    if (victory) console.log("🎉 Victory achieved!");
+    return victory;
   }
 
   // HINTING FUNCTION
@@ -406,5 +456,35 @@ export default class GameController {
       "K",
     ];
     return order.indexOf(rank.toUpperCase());
+  }
+
+  forceWin() {
+    // Assuming this.foundation.piles is an array of 4 piles (stacks)
+    const suits = ["hearts", "diamonds", "clubs", "spades"];
+    const ranks = [
+      "A",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+      "8",
+      "9",
+      "10",
+      "J",
+      "Q",
+      "K",
+    ];
+
+    this.foundation.piles = suits.map((suit) =>
+      ranks.map((rank) => ({ suit, rank }))
+    );
+
+    this.tableau.columns = Array(7).fill([]); // Empty tableau
+    this.stock.cards = [];
+    this.waste = [];
+
+    this.checkVictory(); // Trigger your victory logic
   }
 }
