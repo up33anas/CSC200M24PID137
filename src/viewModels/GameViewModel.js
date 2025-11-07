@@ -5,6 +5,7 @@ import Stack from "../models/data structures/Stack.js";
 export default class GameViewModel {
   constructor(setState) {
     this.setState = setState;
+    this.onVictory = null;
 
     // Pass an onUpdate callback to GameController
     this.controller = new GameController(() => this.updateState());
@@ -21,19 +22,23 @@ export default class GameViewModel {
       window.forceWin = this.forceWin.bind(this);
     }
   }
+  checkWin() {
+    if (this.isGameWon()) {
+      if (this.onVictory) this.onVictory(); // notify the UI
+    }
+  }
 
   handleGameWin() {
     console.log("handleGameWin() triggered — showing victory modal!");
     this.stopTimer?.(); // stop timer if exists
-    this.showVictoryModal = true;
 
-    // Trigger React re-render
-    if (this.setState) {
-      this.setState((prev) => ({
-        ...prev,
-        showVictoryModal: true,
-      }));
+    // React state will track modal
+    if (this.onVictory) {
+      this.onVictory();
     }
+
+    // Optional: also set internal flag
+    this.showVictoryModal = true;
   }
 
   /** --- CARD SELECTION --- */
