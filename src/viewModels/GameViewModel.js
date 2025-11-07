@@ -1,248 +1,6 @@
-// import GameController from "../controllers/GameController.js";
-
-// export default class GameViewModel {
-//   // constructor(setState) {
-//   //   this.controller = new GameController();
-//   //   this.setState = setState;
-//   //   this.selectedCard = null;
-//   //   this.errorMessage = null;
-//   //   this.observers = [];
-
-//   //   // Initialize UI with first game state
-//   //   this.updateState();
-//   // }
-
-//   constructor(setState) {
-//     this.setState = setState;
-//     this.controller = new GameController((state) => {
-//       this.setState({
-//         ...state,
-//         time: this.controller.time,
-//         moves: this.controller.moves,
-//         score: this.controller.score,
-//         progress: this.getProgressPercentage(),
-//       });
-//     });
-
-//     this.selectedCard = null;
-//     this.errorMessage = null;
-//     this.observers = [];
-
-//     this.updateState(); // initialize
-//   }
-
-//   // --- CARD SELECTION LOGIC ---
-//   selectCard(card) {
-//     console.log("Selected card:", card);
-//     this.selectedCard = card;
-//   }
-
-//   clearSelection() {
-//     this.selectedCard = null;
-//   }
-
-//   setError(message) {
-//     this.errorMessage = message;
-//     this.notifyObservers();
-//   }
-
-//   clearError() {
-//     this.errorMessage = null;
-//     this.notifyObservers();
-//   }
-
-//   /** Get latest state */
-//   getState() {
-//     return this.controller.getState();
-//   }
-
-//   /** Helper to sync backend state to frontend */
-//   // updateState() {
-//   //   const state = this.controller.getState();
-//   //   this.setState({
-//   //     tableau: state.tableau,
-//   //     foundation: state.foundation,
-//   //     stock: state.stock,
-//   //     waste: state.stock.getWasteCards(),
-//   //   });
-//   // }
-
-//   // updateState() {
-//   //   const state = this.controller.getState();
-
-//   //   // Clone tableau columns just like waste does
-//   //   const tableau = {
-//   //     ...state.tableau,
-//   //     columns: state.tableau.columns.map((col) =>
-//   //       col.toArray ? col.toArray() : col
-//   //     ),
-//   //   };
-
-//   //   this.setState({
-//   //     tableau,
-//   //     foundation: state.foundation,
-//   //     stock: state.stock,
-//   //     waste: state.stock.getWasteCards(), // always a new array
-//   //   });
-//   // }
-
-//   updateState() {
-//     const state = this.controller.getState();
-
-//     const tableau = {
-//       ...state.tableau,
-//       columns: state.tableau.columns.map((col) =>
-//         col.toArray ? col.toArray() : col
-//       ),
-//     };
-
-//     // Compute progress
-//     const completedCards = state.foundation.piles.reduce(
-//       (sum, pile) => sum + (pile.count || pile.size || 0),
-//       0
-//     );
-//     const totalCards = 52;
-//     const progress = Math.floor((completedCards / totalCards) * 100);
-
-//     // Add moves, score, time from controller if they exist
-//     this.setState({
-//       tableau,
-//       foundation: state.foundation,
-//       stock: state.stock,
-//       waste: state.stock.getWasteCards(),
-//       moves: this.controller.moves || 0,
-//       score: this.controller.score || 0,
-//       time: this.controller.time || 0,
-//       progress,
-//     });
-//   }
-//   up;
-
-//   /** Start a completely new game */
-//   startNewGame() {
-//     this.controller.startNewGame();
-//     this.updateState();
-//   }
-
-//   /** Draw cards from stock */
-//   drawFromStock() {
-//     // this.controller.stock.resetFromWaste(); // handle recycle logic
-//     this.controller.stock.drawThree();
-//     console.log(
-//       "Drew cards from stock to waste: ",
-//       this.controller.getState().stock.getWasteCards()
-//     );
-//     this.updateState();
-//   }
-
-//   /** Recycle waste back to stock */
-//   recycleFromWaste() {
-//     this.controller.stock.resetFromWaste();
-//     this.updateState();
-//   }
-
-//   /** Move waste card to tableau */
-//   moveWasteToTableau(colIndex) {
-//     if (!this.selectedCard) {
-//       console.warn("No card selected!");
-//       return;
-//     }
-//     console.log("Moving selected waste card to tableau:", this.selectedCard);
-
-//     const result = this.controller.moveWasteToTableau(
-//       colIndex,
-//       this.selectedCard
-//     );
-//     if (!result.success) {
-//       this.setError("Invalid move!");
-//     } else {
-//       this.clearError();
-//     }
-
-//     this.notifyObservers();
-
-//     this.clearSelection();
-//     this.updateState();
-//   }
-
-//   notifyObservers() {
-//     this.observers.forEach((cb) => cb());
-//   }
-
-//   subscribe(cb) {
-//     this.observers.push(cb);
-//   }
-
-//   /** Move waste card to foundation */
-//   moveWasteToFoundation() {
-//     if (!this.selectedCard) {
-//       console.warn("No card selected!");
-//       return;
-//     }
-
-//     console.log("Moving selected waste card to foundation:", this.selectedCard);
-//     this.controller.moveWasteToFoundation(this.selectedCard);
-//     this.clearSelection();
-//     this.updateState();
-//   }
-
-//   /** Move tableau card to another tableau column */
-//   moveTableauToTableau(fromCol, toCol, numCards) {
-//     const result = this.controller.moveTableauToTableau(
-//       fromCol,
-//       toCol,
-//       numCards
-//     );
-//     console.log(numCards, "cards moved from tableau", fromCol, "to", toCol);
-//     if (!result.success) {
-//       this.setError("Invalid move!");
-//     } else {
-//       this.clearError();
-//     }
-
-//     this.notifyObservers();
-
-//     this.clearSelection();
-//     this.updateState();
-//   }
-
-//   /** Move tableau card to foundation */
-//   moveTableauToFoundation(colIndex) {
-//     this.controller.moveTableauToFoundation(colIndex);
-//     this.updateState();
-//   }
-
-//   /** Undo / Redo */
-//   undo() {
-//     const success = this.controller.undoLastMove();
-
-//     if (!success) {
-//       this.setError("Nothing to undo");
-//     } else {
-//       this.clearError();
-//     }
-
-//     this.updateState();
-//   }
-
-//   redo() {
-//     const success = this.controller.redoLastMove();
-
-//     if (!success) {
-//       this.setError("Nothing to redo");
-//     } else {
-//       this.clearError();
-//     }
-
-//     this.updateState();
-//   }
-
-//   /** Victory check */
-//   checkVictory() {
-//     return this.controller.checkVictory();
-//   }
-// }
 import GameController from "../controllers/GameController.js";
+import Queue from "../models/data structures/Queue.js";
+import Stack from "../models/data structures/Stack.js";
 
 export default class GameViewModel {
   constructor(setState) {
@@ -258,11 +16,10 @@ export default class GameViewModel {
     this.updateState(); // initial render
   }
 
-  /** --- TIMER is handled in controller --- */
-
   /** --- CARD SELECTION --- */
   selectCard(card) {
     this.selectedCard = card;
+    console.log("viewModel 264 selectCard:", card);
   }
 
   clearSelection() {
@@ -324,7 +81,7 @@ export default class GameViewModel {
   }
 
   drawFromStock() {
-    this.controller.stock.drawThree();
+    this.controller.drawFromStock();
     this.updateState();
   }
 
@@ -399,5 +156,100 @@ export default class GameViewModel {
 
   subscribe(cb) {
     this.observers.push(cb);
+  }
+
+  provideHint() {
+    const { tableau, foundation, waste } = this.controller.getState();
+    console.log(
+      "tableau:",
+      tableau,
+      "foundation:",
+      foundation,
+      "waste:",
+      waste instanceof Array
+    );
+
+    // Try moving from Waste → Foundation or Tableau
+    const visibleWaste = waste.slice(-3); // top 3 visible cards
+    console.log("Visible waste cards for hint:", visibleWaste);
+
+    for (let i = visibleWaste.length - 1; i >= 0; i--) {
+      const card = visibleWaste[i];
+
+      // Check Foundation first
+      if (foundation.piles) {
+        for (let f of foundation.piles) {
+          const topFoundationCard = f.peek ? f.peek() : null;
+          if (
+            this.controller.isValidMoveToFoundation(card, topFoundationCard)
+          ) {
+            console.log("Hint found: Waste → Foundation", card);
+            return { from: "waste", to: "foundation", card };
+          }
+        }
+      }
+
+      // Then check Tableau
+      for (let t of tableau.columns) {
+        const topTableauCard = t.getTopNodes ? t.getTopNodes(1) : null;
+        if (this.controller.isValidMoveToTableau(card, topTableauCard)) {
+          console.log("Hint found: Waste → Tableau", card);
+          return { from: "waste", to: "tableau", card };
+        }
+      }
+    }
+
+    // Try Tableau → Foundation
+    for (let col of tableau.columns) {
+      const top = col.peek?.();
+      if (top) {
+        for (let f of foundation.piles) {
+          if (this.controller.isValidMoveToFoundation(top, f.peek?.())) {
+            return { from: "tableau", to: "foundation", card: top };
+          }
+        }
+      }
+    }
+
+    // Try Tableau → Tableau
+    for (let srcCol of tableau.columns) {
+      const srcTop = srcCol.peek?.();
+      if (!srcTop) continue;
+      for (let destCol of tableau.columns) {
+        if (srcCol === destCol) continue;
+        const destTop = destCol.peek?.();
+        if (this.controller.isValidMoveToTableau(srcTop, destTop)) {
+          return { from: "tableau", to: "tableau", card: srcTop };
+        }
+      }
+    }
+
+    // No valid moves found
+    return null;
+  }
+
+  highlightHint(hint) {
+    if (!hint) return;
+
+    this.hint = hint;
+
+    const currentState = this.controller.getState();
+
+    this.setState({
+      tableau: {
+        ...currentState.tableau,
+        columns: currentState.tableau.columns.map((col) =>
+          col.toArray ? col.toArray() : [...col]
+        ),
+      },
+      foundation: currentState.foundation,
+      stock: currentState.stock,
+      waste: currentState.stock.getWasteCards().slice(),
+      hint,
+    });
+  }
+
+  getHintedCard() {
+    return this.hint?.card || null;
   }
 }

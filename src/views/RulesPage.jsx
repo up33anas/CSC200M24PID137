@@ -238,7 +238,7 @@ export default function RulesPage() {
         <button
           onClick={handleBack}
           className="
-            bg-gradient-to-r from-yellow-400 to-yellow-500
+            bg-linear-to-r from-yellow-400 to-yellow-500
             hover:scale-105 transform transition duration-300
             px-12 py-4 rounded-3xl text-gray-900 text-2xl font-semibold
             shadow-xl hover:shadow-2xl flex items-center justify-center gap-3

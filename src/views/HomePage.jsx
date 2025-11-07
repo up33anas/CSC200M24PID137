@@ -34,7 +34,7 @@ export default function HomePage() {
           <button
             onClick={() => navigate("/game")}
             className="
-              bg-gradient-to-r from-blue-500 to-blue-700
+              bg-linear-to-r from-blue-500 to-blue-700
               hover:scale-105 transform transition duration-300
               px-12 py-4 rounded-3xl text-white text-2xl font-semibold
               shadow-xl hover:shadow-2xl flex items-center justify-center gap-3
@@ -47,7 +47,7 @@ export default function HomePage() {
           <button
             onClick={() => navigate("/rules")}
             className="
-              bg-gradient-to-r from-green-500 to-green-700
+              bg-linear-to-r from-green-500 to-green-700
               hover:scale-105 transform transition duration-300
               px-12 py-4 rounded-3xl text-white text-2xl font-semibold
               shadow-xl hover:shadow-2xl flex items-center justify-center gap-3
@@ -60,7 +60,7 @@ export default function HomePage() {
           <button
             onClick={() => navigate("/leave")}
             className="
-              bg-gradient-to-r from-red-500 to-red-700
+              bg-linear-to-r from-red-500 to-red-700
               hover:scale-105 transform transition duration-300
               px-12 py-4 rounded-3xl text-white text-2xl font-semibold
               shadow-xl hover:shadow-2xl flex items-center justify-center gap-3

@@ -3,6 +3,7 @@ import {
   canPlaceOnDestination,
   findFoundationIndex,
 } from "./gameRules.js";
+import Queue from "../models/data structures/Queue.js";
 
 // Helper to get top card from various pile types
 // function getTopCard(pile) {
@@ -102,20 +103,6 @@ export function moveTableauToFoundation(fromCol, foundation) {
   return moveCards(fromCol, destPile, () => true);
 }
 
-// export function moveWasteToFoundation(waste, foundation) {
-//   if (!waste || waste.isEmpty()) {
-//     console.log("Waste pile is empty");
-//     return { success: false };
-//   }
-
-//   console.log("Waste pile top card:", waste.peek());
-//   const movingCard = waste.peek();
-//   const destIndex = findFoundationIndex(movingCard, foundation);
-//   if (destIndex === -1) return { success: false };
-
-//   const destPile = foundation.piles[destIndex];
-//   return moveCards(waste, destPile, () => true, 1);
-// }
 export function moveWasteToFoundation(waste, foundation, selectedCard = null) {
   if (!waste || waste.isEmpty()) {
     console.log("Waste pile is empty");
@@ -146,61 +133,6 @@ export function moveWasteToTableau(waste, tableau, colIndex, selectedCard) {
   );
 }
 
-// Generic move executor - FIXED to return consistent result objects
-// export function moveCards(
-//   source,
-//   dest,
-//   validateFn,
-//   numCards = 1,
-//   selectedCard = null
-// ) {
-//   if (source.isEmpty()) return { success: false };
-
-//   let movingCards;
-
-//   if (selectedCard) {
-//     // Custom: find the clicked card and move only that one
-//     const allCards = source.toArray();
-//     const index = allCards.findIndex(
-//       (c) => c.suit === selectedCard.suit && c.rank === selectedCard.rank
-//     );
-//     if (index === -1) return { success: false };
-
-//     numCards == 1
-//       ? (movingCards = [allCards[index]])
-//       : (movingCards = allCards.slice(index));
-//   } else if (source.getTopNodes) {
-//     movingCards = source
-//       .getTopNodes(numCards)
-//       .reverse()
-//       .map((n) => n.data || n);
-//   } else {
-//     movingCards = [source.peek()];
-//   }
-
-//   const destTop = getTopCard(dest);
-//   if (!validateFn(movingCards, destTop)) return { success: false };
-
-//   // Remove that specific card from source
-//   if (selectedCard) {
-//     source.removeCard(selectedCard); // You’ll need to implement this helper
-//   } else if (source.deleteTopNodes) {
-//     source.deleteTopNodes(numCards);
-//   } else if (source.pop) {
-//     for (let i = 0; i < numCards; i++) source.pop();
-//   }
-
-//   insertCards(dest, movingCards);
-
-//   if (!source.isEmpty() && source.peek && !source.peek().faceUp) {
-//     source.peek().faceUp = true;
-//   }
-
-//   // Flip last card of source column if needed
-//   flipLastCardIfFaceDown(source);
-
-//   return { success: true, cards: movingCards, from: source, to: dest };
-// }
 export function moveCards(
   source,
   dest,
@@ -208,77 +140,77 @@ export function moveCards(
   numCards = 1,
   selectedCard = null
 ) {
-  if (source.isEmpty()) return { success: false };
+  if (!source || source.isEmpty()) return { success: false };
 
-  let movingCards;
+  let movingCards = [];
+  const allCards = source.toArray();
 
-  // if (selectedCard) {
-  //   // Find the clicked card in source
-  //   const allCards = source.toArray();
-  //   const index = allCards.findIndex(
-  //     (c) => c.suit === selectedCard.suit && c.rank === selectedCard.rank
-  //   );
-  //   if (index === -1) return { success: false };
+  console.log("moveHelpers line 197 allCards from source:", source);
 
-  //   // If source is tableau, move all cards from selected card to top
-  //   // If source is waste, only move selected card (waste only ever moves 1)
-  //   movingCards =
-  //     Array.isArray(source) || source.isTableau
-  //       ? allCards.slice(index)
-  //       : [allCards[index]];
-  // } else if (source.getTopNodes) {
-  //   movingCards = source
-  //     .getTopNodes(numCards)
-  //     .reverse()
-  //     .map((n) => n.data || n);
-  // } else {
-  //   movingCards = [source.peek()];
-  // }
-  if (selectedCard) {
-    // Find index of selected card
-    const allCards = source.toArray();
+  // Determine which cards to move
+  if (source instanceof Queue) {
+    // Move only the user-selected visible card
+    if (!selectedCard) return { success: false };
+    const cardIndex = allCards.findIndex(
+      (c) => c.suit === selectedCard.suit && c.rank === selectedCard.rank
+    );
+    if (cardIndex === -1) return { success: false };
+    movingCards = [allCards[cardIndex]];
+  } else if (selectedCard) {
+    // Tableau: move selected card + all above
     const index = allCards.findIndex(
       (c) => c.suit === selectedCard.suit && c.rank === selectedCard.rank
     );
     if (index === -1) return { success: false };
-
-    // Move all cards from selected card to top
     movingCards = allCards.slice(index);
   } else if (source.getTopNodes) {
-    // getTopNodes should return top-to-bottom slice of `numCards`
-    movingCards = source.getTopNodes(numCards).map((n) => n.data || n); // Remove reverse() if your top is already last in array
+    // For linked-list tableau columns
+    movingCards = source.getTopNodes(numCards).map((n) => n.data || n);
   } else {
+    // Default: move top card
     movingCards = [source.peek()];
   }
 
+  // Validate the move before proceeding
   const destTop = getTopCard(dest);
   if (!validateFn(movingCards, destTop)) return { success: false };
 
-  // Remove the moving cards from source
-  if (selectedCard) {
-    if (Array.isArray(source) || source.isTableau) {
-      // Remove all cards from selected card onwards
-      const allCards = source.toArray();
-      const index = allCards.findIndex(
-        (c) => c.suit === selectedCard.suit && c.rank === selectedCard.rank
-      );
-      if (index !== -1) source.removeCardsFromIndex(index);
-    } else {
-      // Waste or other single-card piles
-      source.removeCard(selectedCard);
-    }
-  } else if (source.deleteTopNodes) {
+  console.log("moveHelpers line 202 movingCards:", source.name, movingCards);
+  console.log(
+    "moveHelpers line 203 typeOf source:",
+    source.type || source.name
+  );
+  // Remove from source
+  if (source instanceof Queue) {
+    source.removeCard(selectedCard); // remove specific one
+  } else if (
+    selectedCard &&
+    typeof source.removeCardsFromIndex === "function"
+  ) {
+    const index = allCards.findIndex(
+      (c) => c.suit === selectedCard.suit && c.rank === selectedCard.rank
+    );
+    if (index !== -1) source.removeCardsFromIndex(index);
+  } else if (typeof source.deleteTopNodes === "function") {
     source.deleteTopNodes(numCards);
-  } else if (source.pop) {
+  } else if (typeof source.pop === "function") {
     for (let i = 0; i < numCards; i++) source.pop();
   }
 
+  // Insert into destination pile
   insertCards(dest, movingCards);
 
-  // Flip top card of source if face down
-  flipLastCardIfFaceDown(source);
+  // Flip last card if necessary
+  if (typeof flipLastCardIfFaceDown === "function")
+    flipLastCardIfFaceDown(source);
 
-  return { success: true, cards: movingCards, from: source, to: dest };
+  return {
+    success: true,
+    movedCount: movingCards.length,
+    cards: movingCards,
+    from: source.name || "unknown",
+    to: dest.name || "unknown",
+  };
 }
 
 function flipLastCardIfFaceDown(column) {

@@ -4,6 +4,8 @@ import { useDrop } from "react-dnd";
 
 // Single Tableau Column Component
 function TableauColumn({ column, colIndex, viewModel }) {
+  const hintedCard = viewModel?.hint?.card;
+
   const pile = column.toArray ? column.toArray() : column; // if array, just use it
 
   const handleDropCard = (item) => {
@@ -50,6 +52,11 @@ function TableauColumn({ column, colIndex, viewModel }) {
               viewModel={viewModel}
               stack={stack}
               source="tableau"
+              isHint={
+                hintedCard &&
+                hintedCard.suit === card.suit &&
+                hintedCard.rank === card.rank
+              }
             />
           </div>
         );

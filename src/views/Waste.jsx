@@ -3,6 +3,8 @@ import CardUI from "./CardUI";
 import { useDrag } from "react-dnd";
 
 export default function WasteView({ waste, viewModel }) {
+  const hintedCard = viewModel?.hint?.card;
+
   const visibleCards = waste.slice(-3);
 
   return (
@@ -29,7 +31,7 @@ export default function WasteView({ waste, viewModel }) {
           <div
             key={card.id || index}
             ref={drag}
-            onClick={() => viewModel.selectCard(card)} // 👈 select card
+            onClick={() => viewModel.selectCard(card)}
             className="absolute transition-transform duration-300 cursor-pointer"
             style={{
               left: `${index * 27}px`,
@@ -41,7 +43,16 @@ export default function WasteView({ waste, viewModel }) {
                   : "none",
             }}
           >
-            <CardUI card={card} viewModel={viewModel} source="waste" />
+            <CardUI
+              card={card}
+              viewModel={viewModel}
+              source="waste"
+              isHint={
+                hintedCard &&
+                hintedCard.suit === card.suit &&
+                hintedCard.rank === card.rank
+              }
+            />
           </div>
         );
       })}

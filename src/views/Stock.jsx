@@ -1,8 +1,9 @@
 import React from "react";
 import CardUI from "./CardUI";
-// import { Undo } from "lucide-react";
 
 export default function StockView({ stock, viewModel }) {
+  const hintedCard = viewModel?.hint?.card;
+
   const handleClick = () => {
     viewModel.drawFromStock(); // moves top 3 to waste
   };
@@ -26,7 +27,14 @@ export default function StockView({ stock, viewModel }) {
             className="absolute w-full h-full border-2 border-gray-400 rounded-lg bg-blue-900/60"
             style={{ top: i * 0.5 }}
           >
-            <CardUI card={{ ...card, faceUp: false }} />
+            <CardUI
+              card={{ ...card, faceUp: false }}
+              isHint={
+                hintedCard &&
+                hintedCard.suit === card.suit &&
+                hintedCard.rank === card.rank
+              }
+            />
           </div>
         ))
       ) : (

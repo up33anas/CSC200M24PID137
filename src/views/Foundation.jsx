@@ -3,6 +3,8 @@ import CardUI from "./CardUI.jsx";
 import { useDrop } from "react-dnd";
 
 export default function FoundationView({ foundation, viewModel }) {
+  const hintedCard = viewModel?.hint?.card;
+
   const symbols = ["♥", "♦", "♣", "♠"];
 
   return (
@@ -41,6 +43,11 @@ export default function FoundationView({ foundation, viewModel }) {
                 card={topCard}
                 viewModel={viewModel}
                 source="foundation"
+                isHint={
+                  hintedCard &&
+                  hintedCard.suit === topCard.suit &&
+                  hintedCard.rank === topCard.rank
+                }
               />
             ) : (
               <span className="opacity-50 text-5xl">{symbols[index]}</span>
