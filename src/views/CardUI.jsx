@@ -10,20 +10,52 @@ export default function CardUI({
   source = "tableau",
   isHint = false,
 }) {
-  const dragItem = useMemo(() => {
-    if (!card?.faceUp) return null;
-    return { type: "CARD", cards: stack, fromCol: columnIndex, source };
-  }, [card, stack, columnIndex, source]);
+  // Skip drag if card is face-down
+  const canDrag = !!card?.faceUp;
+
+  // Stable drag payload
+  const dragPayload = useMemo(
+    () => ({
+      type: "CARD",
+      cards: stack,
+      fromCol: columnIndex,
+      source,
+    }),
+    [stack, columnIndex, source]
+  );
 
   const [{ isDragging }, dragRef] = useDrag(
     () => ({
       type: "CARD",
-      item: dragItem,
-      canDrag: !!dragItem,
-      collect: (m) => ({ isDragging: m.isDragging() }),
+
+      // `item` is now a *function* (runs when drag starts)
+      item: () => {
+        if (canDrag && viewModel) {
+          console.log("👉 Drag started:", card);
+          viewModel.selectCard(card);
+        }
+        return dragPayload;
+      },
+
+      canDrag,
+
+      collect: (monitor) => ({
+        isDragging: monitor.isDragging(),
+      }),
     }),
-    [dragItem]
+    [canDrag, dragPayload, card, viewModel]
   );
+
+  // `end` is now handled by useEffect using monitor subscription (v14 change)
+  React.useEffect(() => {
+    if (!viewModel) return;
+
+    // React DnD monitor event
+    return () => {
+      console.log("Drag ended — clearing selection");
+      viewModel.clearSelection();
+    };
+  }, [viewModel]);
 
   const handleClick = () => {
     if (!card.faceUp) return;
@@ -40,11 +72,15 @@ export default function CardUI({
       ref={dragRef}
       onClick={handleClick}
       className={`
-    w-30 h-45 rounded-lg select-none transition-all duration-200
-    ${isHint ? "ring-4 ring-yellow-400 animate-pulse" : ""}
-    ${isDragging ? "opacity-50 scale-105" : ""}
-    ${card.faceUp ? "cursor-pointer hover:scale-105" : "cursor-default"}
-  `}
+        w-30 h-45 rounded-lg select-none transition-all duration-200
+        ${isHint ? "ring-4 ring-yellow-400 animate-pulse" : ""}
+        ${isDragging ? "opacity-50 scale-105" : ""}
+        ${
+          card.faceUp
+            ? "cursor-grab hover:scale-105 active:cursor-grabbing"
+            : "cursor-default"
+        }
+      `}
       style={{
         touchAction: "none",
         boxShadow:
