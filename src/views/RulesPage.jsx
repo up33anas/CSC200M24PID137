@@ -147,7 +147,7 @@ export default function RulesPage() {
           <h2 className="text-3xl font-bold mb-4 text-blue-400 flex items-center gap-2">
             <CheckCircle size={28} /> What's the Game
           </h2>
-          <ul className="list-disc list-inside space-y-2 text-lg">
+          <ul className="list-none list- space-y-2 text-lg text-left">
             <li>Standard deck of 52 cards.</li>
             <li>Shuffle the deck thoroughly before starting.</li>
             <li>
@@ -163,7 +163,7 @@ export default function RulesPage() {
           <h2 className="text-3xl font-bold mb-4 text-green-400 flex items-center gap-2">
             <RefreshCw size={28} /> Drawing Cards
           </h2>
-          <ul className="list-disc list-inside space-y-2 text-lg">
+          <ul className="list-none list-inside space-y-2 text-lg  text-left">
             <li>
               Draw <strong>three cards at a time</strong> from the stockpile to
               the waste pile.
@@ -183,7 +183,7 @@ export default function RulesPage() {
           <h2 className="text-3xl font-bold mb-4 text-purple-400 flex items-center gap-2">
             <CheckCircle size={28} /> Valid Moves
           </h2>
-          <ul className="list-disc list-inside space-y-2 text-lg">
+          <ul className="list-none list-inside space-y-2 text-lg text-left">
             <li>
               Tableau piles built in descending order, alternating colors.
             </li>
@@ -200,7 +200,7 @@ export default function RulesPage() {
           <h2 className="text-3xl font-bold mb-4 text-red-400 flex items-center gap-2">
             <Star size={28} /> Victory Condition
           </h2>
-          <p className="text-lg">
+          <p className="text-lg text-left">
             The game is won when all cards are moved to the foundation piles in
             the correct order.
           </p>
@@ -211,7 +211,7 @@ export default function RulesPage() {
           <h2 className="text-3xl font-bold mb-4 text-orange-400 flex items-center gap-2">
             <Clock size={28} /> Features & Help
           </h2>
-          <ul className="list-disc list-inside space-y-2 text-lg">
+          <ul className="list-none list-inside space-y-2 text-lg text-left">
             <li>Undo/Redo system: Track moves and undo mistakes.</li>
             <li>
               Timer & Score: Monitor your performance and move efficiency.
@@ -227,7 +227,7 @@ export default function RulesPage() {
           <h2 className="text-3xl font-bold mb-4 text-teal-400 flex items-center gap-2">
             <Star size={28} /> Success Tips
           </h2>
-          <ul className="list-disc list-inside space-y-2 text-lg">
+          <ul className="list-none list-inside space-y-2 text-lg text-left">
             <li>Uncover face-down tableau cards as soon as possible.</li>
             <li>Use the three-card draw wisely to maximize moves.</li>
             <li>Plan ahead to free up Kings for empty tableau spaces.</li>

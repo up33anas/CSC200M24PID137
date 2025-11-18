@@ -239,76 +239,119 @@ export default class GameViewModel {
 
   provideHint() {
     const { tableau, foundation, waste } = this.controller.getState();
-    console.log(
-      "tableau:",
-      tableau,
-      "foundation:",
-      foundation,
-      "waste:",
-      waste instanceof Array
-    );
 
-    // Try moving from Waste → Foundation or Tableau
     const visibleWaste = waste.slice(-3); // top 3 visible cards
-    console.log("Visible waste cards for hint:", visibleWaste);
 
+    // Containers for moves by priority
+    const wasteToFoundation = [];
+    const tableauToFoundation = [];
+    const wasteToTableau = [];
+    const tableauToTableau = [];
+
+    // ---------------------------
+    // Waste to Foundation
+    // ---------------------------
     for (let i = visibleWaste.length - 1; i >= 0; i--) {
       const card = visibleWaste[i];
-
-      // Check Foundation first
-      if (foundation.piles) {
-        for (let f of foundation.piles) {
-          const topFoundationCard = f.peek ? f.peek() : null;
-          if (
-            this.controller.isValidMoveToFoundation(card, topFoundationCard)
-          ) {
-            console.log("Hint found: Waste → Foundation", card);
-            return { from: "waste", to: "foundation", card };
-          }
-        }
-      }
-
-      // Then check Tableau
-      for (let t of tableau.columns) {
-        const topTableauCard = t.getTopNodes ? t.getTopNodes(1) : null;
-        if (this.controller.isValidMoveToTableau(card, topTableauCard)) {
-          console.log("Hint found: Waste → Tableau", card);
-          return { from: "waste", to: "tableau", card };
+      for (let f of foundation.piles) {
+        if (this.controller.isValidMoveToFoundation(card, f)) {
+          wasteToFoundation.push({ from: "waste", to: "foundation", card });
         }
       }
     }
 
-    // Try Tableau → Foundation
+    // ---------------------------
+    // Tableau to Foundation
+    // ---------------------------
     for (let col of tableau.columns) {
-      const top = col.peek?.();
-      if (top) {
-        for (let f of foundation.piles) {
-          if (this.controller.isValidMoveToFoundation(top, f.peek?.())) {
-            return { from: "tableau", to: "foundation", card: top };
-          }
+      const topNodes = col.getTopNodes?.(1); // returns array of Nodes
+      const topNode = topNodes?.[0]; // get the Node
+      const topCard = topNode?.data; // extract Card object
+      if (!topCard) continue;
+      for (let f of foundation.piles) {
+        if (this.controller.isValidMoveToFoundation(topCard, f)) {
+          tableauToFoundation.push({
+            from: "tableau",
+            to: "foundation",
+            card: topCard,
+          });
         }
       }
     }
 
-    // Try Tableau → Tableau
+    // ---------------------------
+    // Waste to Tableau
+    // ---------------------------
+    for (let i = visibleWaste.length - 1; i >= 0; i--) {
+      const card = visibleWaste[i];
+      for (let col of tableau.columns) {
+        if (this.controller.isValidMoveToTableau(card, col)) {
+          wasteToTableau.push({ from: "waste", to: "tableau", card });
+        }
+      }
+    }
+
+    // ---------------------------
+    // Tableau to Tableau
+    // ---------------------------
     for (let srcCol of tableau.columns) {
-      const srcTop = srcCol.peek?.();
-      if (!srcTop) continue;
+      const srcTopNode = srcCol.getTopNodes?.(1)?.[0]; // Node
+      const srcTopCard = srcTopNode?.data; // Card
+      if (!srcTopCard) continue;
+
       for (let destCol of tableau.columns) {
         if (srcCol === destCol) continue;
-        const destTop = destCol.peek?.();
-        if (this.controller.isValidMoveToTableau(srcTop, destTop)) {
-          return { from: "tableau", to: "tableau", card: srcTop };
+
+        if (this.controller.isValidMoveToTableau(srcTopCard, destCol)) {
+          console.log(
+            "Valid move found:",
+            srcTopCard,
+            " to ",
+            destCol.getTopNodes?.(1)
+          );
+          tableauToTableau.push({
+            from: "tableau",
+            to: "tableau",
+            card: srcTopCard,
+          });
         }
       }
     }
 
-    // No valid moves found
-    return null;
+    // ---------------------------
+    // Return first available move at highest priority
+    // ---------------------------
+    if (wasteToFoundation.length) return wasteToFoundation[0];
+    if (tableauToFoundation.length) return tableauToFoundation[0];
+    if (wasteToTableau.length) return wasteToTableau[0];
+    if (tableauToTableau.length) return tableauToTableau[0];
+
+    return null; // No valid moves anywhere
   }
 
+  // highlightHint(hint) {
+  //   if (!hint) return;
+
+  //   this.hint = hint;
+
+  //   const currentState = this.controller.getState();
+
+  //   this.setState({
+  //     tableau: {
+  //       ...currentState.tableau,
+  //       columns: currentState.tableau.columns.map((col) =>
+  //         col.toArray ? col.toArray() : [...col]
+  //       ),
+  //     },
+  //     foundation: currentState.foundation,
+  //     stock: currentState.stock,
+  //     waste: currentState.stock.getWasteCards().slice(),
+  //     hint,
+  //   });
+  // }
+
   highlightHint(hint) {
-    if (!hint) return;
+    const animationKey = Date.now(); // changes only once per hint click
 
     this.hint = hint;
 
@@ -325,6 +368,7 @@ export default class GameViewModel {
       stock: currentState.stock,
       waste: currentState.stock.getWasteCards().slice(),
       hint,
+      animationKey,
     });
   }
 

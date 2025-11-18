@@ -8,3 +8,20 @@
 .font-poppins {
   font-family: "Poppins", sans-serif;
 }
+
+@keyframes card-jump {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  30% {
+    transform: translateY(-10px);
+  }
+  60% {
+    transform: translateY(0);
+  }
+}
+
+.card-hint-jump {
+  animation: card-jump 0.4s ease-in-out 3; /* 🔥 3 repeats */
+}

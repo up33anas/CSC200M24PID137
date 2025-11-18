@@ -10,6 +10,7 @@ import {
   moveWasteToTableau,
   moveWasteToFoundation,
 } from "../utils/moveHelpers.js";
+import { List } from "lucide-react";
 
 export default class GameController {
   constructor(onUpdate) {
@@ -297,7 +298,7 @@ export default class GameController {
   /* ----------------- GAME STATUS ----------------- */
 
   checkVictory() {
-    console.log("🔍 Checking victory condition...");
+    console.log("Checking victory condition...");
 
     // --- Check foundations ---
     const allFoundationsFull = this.foundation.piles.every((pile) => {
@@ -413,6 +414,10 @@ export default class GameController {
   }
 
   isValidMoveToFoundation(card, pile) {
+    if (!pile || (Array.isArray(pile) && pile.length === 0)) {
+      return card.rank === "A";
+    }
+
     const top = pile instanceof Stack ? pile.peek() : pile[0]?.data;
     if (!top) return card.rank === "A"; // Only Ace starts a pile
     return (
@@ -422,11 +427,28 @@ export default class GameController {
   }
 
   isValidMoveToTableau(card, column) {
-    const top = column.getLastNode()?.data;
-    if (!top) return card.rank === "K"; // King starts an empty tableau
+    let top, topNode, topCard;
+
+    // Column is LinkedList
+    if (typeof column.getTopNodes === "function") {
+      top = column.getTopNodes(1);
+      topNode = top?.[0]; // get the Node
+      topCard = topNode?.data; // extract Card object
+    }
+    // Column is Array
+    else if (Array.isArray(column)) {
+      top = column[column.length - 1]?.data;
+    }
+    // No column
+    else {
+      topCard = null;
+    }
+
+    if (!topCard) return card.rank === "K"; // King starts tableau
+
     return (
-      this.isOppositeColor(card.suit, top.suit) &&
-      this.rankValue(card.rank) === this.rankValue(top.rank) - 1
+      this.isOppositeColor(card.suit, topCard.suit) &&
+      this.rankValue(card.rank) === this.rankValue(topCard.rank) - 1
     );
   }
 

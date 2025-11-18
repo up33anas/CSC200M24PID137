@@ -36,7 +36,8 @@ export default class Stack {
 
   peek() {
     if (this.isEmpty()) {
-      throw new Error("Stack is empty!");
+      console.log("Stack is empty!");
+      return null;
     }
     return this.top.data;
   }

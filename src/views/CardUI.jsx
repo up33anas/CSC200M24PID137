@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useEffect } from "react";
 import * as deck from "@letele/playing-cards";
 import { useDrag } from "react-dnd";
 
@@ -10,77 +10,69 @@ export default function CardUI({
   source = "tableau",
   isHint = false,
 }) {
-  // Skip drag if card is face-down
-  const canDrag = !!card?.faceUp;
+  if (!card) {
+    return null;
+  }
 
-  // Stable drag payload
-  const dragPayload = useMemo(
-    () => ({
-      type: "CARD",
-      cards: stack,
-      fromCol: columnIndex,
-      source,
-    }),
-    [stack, columnIndex, source]
-  );
+  // Create a drag item for React DnD
+  const dragItem = useMemo(() => {
+    if (!card.faceUp) return null;
+    return { type: "CARD", cards: stack, fromCol: columnIndex, source };
+  }, [card, stack, columnIndex, source]);
 
+  // Enable dragging
   const [{ isDragging }, dragRef] = useDrag(
     () => ({
       type: "CARD",
-
-      // `item` is now a *function* (runs when drag starts)
-      item: () => {
-        if (canDrag && viewModel) {
-          console.log("👉 Drag started:", card);
-          viewModel.selectCard(card);
-        }
-        return dragPayload;
-      },
-
-      canDrag,
-
+      item: dragItem,
+      canDrag: !!dragItem,
       collect: (monitor) => ({
         isDragging: monitor.isDragging(),
       }),
     }),
-    [canDrag, dragPayload, card, viewModel]
+    [dragItem]
   );
 
-  // `end` is now handled by useEffect using monitor subscription (v14 change)
-  React.useEffect(() => {
-    if (!viewModel) return;
-
-    // React DnD monitor event
-    return () => {
-      console.log("Drag ended — clearing selection");
-      viewModel.clearSelection();
-    };
-  }, [viewModel]);
+  // Automatically select the dragged card
+  useEffect(() => {
+    if (isDragging && card?.faceUp) {
+      viewModel?.selectCard(card);
+      console.log("Drag started — selected card:", card.toString?.() || card);
+    }
+  }, [isDragging, card, viewModel]);
 
   const handleClick = () => {
     if (!card.faceUp) return;
-    console.log("Card clicked:", card);
     viewModel?.selectCard(card);
   };
 
-  const key = card.suit[0].toUpperCase() + card.rank.toLowerCase();
-  const Comp = deck[key] ?? deck["2C"];
+  // Card graphics
+  const key = card?.suit?.[0]?.toUpperCase() + card?.rank?.toLowerCase();
+  const Comp = (deck && deck[key]) || deck["2C"];
   const Back = deck["B1"];
 
+  if (!Comp || !Back) {
+    console.warn("Missing card asset for:", key);
+    return null;
+  }
+
+  // Render
   return (
     <div
+      key={isHint ? `hint-${Date.now()}` : card.id} // 🔥 Remount = animation restarts
       ref={dragRef}
       onClick={handleClick}
       className={`
-        w-30 h-45 rounded-lg select-none transition-all duration-200
-        ${isHint ? "ring-4 ring-yellow-400 animate-pulse" : ""}
-        ${isDragging ? "opacity-50 scale-105" : ""}
-        ${
-          card.faceUp
-            ? "cursor-grab hover:scale-105 active:cursor-grabbing"
-            : "cursor-default"
-        }
-      `}
+      w-30 h-45 rounded-lg select-none transition-all duration-200
+      ${
+        isHint
+          ? "ring-4 ring-yellow-400 ring-offset-2 ring-offset-black card-hint-jump"
+          : ""
+      }
+      ${isDragging ? "opacity-50 scale-105" : ""}
+      ${card.faceUp ? "cursor-pointer hover:scale-105" : "cursor-default"}
+      bg-white
+    `}
       style={{
         touchAction: "none",
         boxShadow:

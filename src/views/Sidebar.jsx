@@ -115,7 +115,7 @@ import {
 export default function Sidebar({
   moves = 0,
   score = 0,
-  progress = 60,
+  progress = 0,
   autoStart = true, // prop to control timer start
   onNewGame,
   onLeave,
